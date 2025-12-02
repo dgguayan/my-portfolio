@@ -27,7 +27,8 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-black p-4 border-b-4 border-white">
+    // make header sticky, semi-transparent and above background elements
+    <header className="sticky top-0 z-50 w-full bg-black/80 backdrop-blur-sm p-4 border-b-4 border-white">
       <nav className="container mx-auto flex justify-between items-center">
         <h1 className="text-4xl font-bold text-black dark:text-white"><span className='font-black'>{"<"} D.G /{">"}</span></h1>
         <ul className="flex gap-6 items-center uppercase">

@@ -50,6 +50,7 @@ export default function ProjectsGrid() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {page.map((project) => (
                     <div
+                      data-cursor-lock
                       key={project.id}
                       className="relative bg-white rounded-2xl border-4 border-white overflow-hidden shadow-lg"
                     >

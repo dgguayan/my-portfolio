@@ -148,6 +148,7 @@ export default function ProjectDetail() {
         {remaining > 0 && (
           <div className="mt-6 text-center">
             <button
+            
               onClick={showMore}
               className="px-6 py-2 bg-white text-black rounded-full font-semibold hover:opacity-90 transition"
             >

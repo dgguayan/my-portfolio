@@ -3,29 +3,151 @@ import { useEffect, useRef } from 'react';
 
 export default function Cursor() {
   const elRef = useRef<HTMLDivElement | null>(null);
-  const SIZE = 120; // increased so corners have room
+  const dotRef = useRef<HTMLDivElement | null>(null);
+  const SIZE = 60;
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if ('ontouchstart' in window) return; // don't force on touch devices
 
     const el = elRef.current;
+    const dotEl = dotRef.current;
     if (!el) return;
 
     let raf = 0;
     let mouseX = -9999;
     let mouseY = -9999;
 
+    let currX = -9999;
+    let currY = -9999;
+    let currentScale = 1;
+    let targetScale = 1;
+
+    // track width/height so cursor can expand to element size
+    let currW = SIZE;
+    let currH = SIZE;
+    let targetW = SIZE;
+    let targetH = SIZE;
+
+    // inner dot offset (relative to center), animated
+    let currDotX = 0;
+    let currDotY = 0;
+    let targetDotX = 0;
+    let targetDotY = 0;
+    const DOT_SIZE = 7; // matches CSS .dot size
+
+    let locked = false;
+    let lockedEl: HTMLElement | null = null;
+
+    const selector = 'button, a, input, [data-cursor-lock]';
+
     const onMove = (e: MouseEvent) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
+      // seed current pos on first move to avoid jumps
+      if (currX < -9000) { currX = mouseX; currY = mouseY; }
       if (!raf) raf = requestAnimationFrame(update);
     };
+
+    // Use elementFromPoint in the frame loop to robustly detect underlying element
+    const detectHoverTarget = () => {
+      try {
+        const node = document.elementFromPoint(mouseX, mouseY) as Element | null;
+        if (!node) return null;
+        return node.closest(selector) as HTMLElement | null;
+      } catch {
+        return null;
+      }
+    };
+
+    const clamp = (v: number, a: number, b: number) => Math.min(Math.max(v, a), b);
 
     const update = () => {
       raf = 0;
       if (!el) return;
-      el.style.transform = `translate3d(${mouseX - SIZE / 2}px, ${mouseY - SIZE / 2}px, 0)`;
+
+      // detect potential lock target at the current mouse position
+      const hit = detectHoverTarget();
+      if (hit) {
+        // begin (or keep) locked state
+        if (!locked || lockedEl !== hit) {
+          locked = true;
+          lockedEl = hit;
+        }
+        const r = lockedEl.getBoundingClientRect();
+        const lockX = r.left + r.width / 2;
+        const lockY = r.top + r.height / 2;
+
+        // set targets to element's actual size (with minimum)
+        targetW = Math.max(SIZE * 0.6, r.width);
+        targetH = Math.max(SIZE * 0.6, r.height);
+
+        // smooth toward lock center & size
+        currX += (lockX - currX) * 0.18;
+        currY += (lockY - currY) * 0.18;
+        currW += (targetW - currW) * 0.18;
+        currH += (targetH - currH) * 0.18;
+        // keep a subtle scale factor for extra visual tweak when locked
+        targetScale = 1;
+        currentScale += (targetScale - currentScale) * 0.12;
+
+        // compute dot target offset relative to element center, then clamp inside gunscope area
+        const relX = mouseX - lockX;
+        const relY = mouseY - lockY;
+        // maximum allowed offset inside current gunscope (leave a small padding)
+        const maxOffsetX = Math.max(4, currW / 2 - DOT_SIZE / 2 - 6);
+        const maxOffsetY = Math.max(4, currH / 2 - DOT_SIZE / 2 - 6);
+        targetDotX = clamp(relX, -maxOffsetX, maxOffsetX);
+        targetDotY = clamp(relY, -maxOffsetY, maxOffsetY);
+        // lerp inner dot toward target
+        currDotX += (targetDotX - currDotX) * 0.22;
+        currDotY += (targetDotY - currDotY) * 0.22;
+      } else {
+        // release lock and follow mouse
+        locked = false;
+        lockedEl = null;
+        targetW = SIZE;
+        targetH = SIZE;
+        currX += (mouseX - currX) * 0.22;
+        currY += (mouseY - currY) * 0.22;
+        currW += (targetW - currW) * 0.18;
+        currH += (targetH - currH) * 0.18;
+        targetScale = 1;
+        currentScale += (1 - currentScale) * 0.14;
+
+        // when free, dot returns to center
+        targetDotX = 0;
+        targetDotY = 0;
+        currDotX += (targetDotX - currDotX) * 0.18;
+        currDotY += (targetDotY - currDotY) * 0.18;
+      }
+
+      // toggle CSS class for visuals
+      el.classList.toggle('locked', locked);
+
+      // apply computed width/height and position the element by its current size so it centers correctly
+      el.style.width = `${Math.round(currW)}px`;
+      el.style.height = `${Math.round(currH)}px`;
+      el.style.transform = `translate3d(${currX - currW / 2}px, ${currY - currH / 2}px, 0) scale(${currentScale})`;
+
+      // apply inner dot offset (translate from center)
+      const dotNode = dotRef.current ?? el.querySelector('.dot') as HTMLElement | null;
+      if (dotNode) {
+        dotNode.style.transform = `translate(calc(-50% + ${Math.round(currDotX)}px), calc(-50% + ${Math.round(currDotY)}px))`;
+      }
+
+      if (
+        locked ||
+        Math.abs(currX - mouseX) > 0.5 ||
+        Math.abs(currY - mouseY) > 0.5 ||
+        Math.abs(currW - targetW) > 0.5 ||
+        Math.abs(currH - targetH) > 0.5 ||
+        Math.abs(currentScale - targetScale) > 0.01
+      ) {
+        raf = requestAnimationFrame(update);
+      } else {
+        raf = 0;
+      }
     };
 
     const prevCursor = document.body.style.cursor;
@@ -48,7 +170,7 @@ export default function Cursor() {
         <div className="corner bl" />
         <div className="corner br" />
         {/* center square */}
-        <div className="dot" />
+        <div className="dot" ref={dotRef} />
       </div>
 
       <style>{`
@@ -66,6 +188,9 @@ export default function Cursor() {
           mix-blend-mode: normal;
         }
 
+        /* slight visual feedback when locked */
+        .gunscope.locked { opacity: 0.98; transform-origin: center center; }
+
         /* corner L-shapes: each corner box produces a horizontal and vertical bar via pseudo elements */
         .corner {
           position: absolute;
@@ -78,17 +203,16 @@ export default function Cursor() {
           position: absolute;
           background: #ffffff;
           border-radius: 2px;
-          box-shadow: 0 0 0 rgba(0,0,0,0);
         }
 
         /* bar sizes */
         .corner::before { /* horizontal bar */
-          height: 8px;
-          width: 38px;
+          height: 2px;
+          width: 9px;
         }
         .corner::after { /* vertical bar */
-          width: 8px;
-          height: 38px;
+          width: 2px;
+          height: 9px;
         }
 
         /* top-left */
@@ -116,12 +240,15 @@ export default function Cursor() {
           position: absolute;
           left: 50%;
           top: 50%;
-          width: 24px;
-          height: 24px;
+          width: 7px;
+          height: 7px;
           transform: translate(-50%, -50%);
           background: #ffffff;
           box-shadow: none;
         }
+
+        /* visual tweaks when "locked" will be done via size/position from JS; optional style hook */
+        [data-cursor-lock] { /* no-op placeholder; users can style locked elements if needed */ }
 
         /* hide on touch / small screens */
         @media (pointer: coarse), (max-width: 640px) {

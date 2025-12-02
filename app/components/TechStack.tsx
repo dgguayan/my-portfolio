@@ -100,6 +100,7 @@ export default function TechStack() {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-6 justify-center">
               {cat.items.map((tech) => (
                 <div
+                  data-cursor-lock
                   key={tech}
                   className="flex flex-col items-center bg-transparent p-3 rounded-lg hover:scale-105 transition-transform"
                 >

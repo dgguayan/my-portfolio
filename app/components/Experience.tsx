@@ -42,7 +42,7 @@ export default function Experience() {
 
         <div className="space-y-12 max-w-5xl mx-auto">
           {EXPERIENCES.map((exp, idx) => (
-            <div key={exp.id} className="flex items-start gap-8">
+            <div data-cursor-lock key={exp.id} className="flex items-start gap-8">
               {/* Logo / image column */}
               <div className="flex-shrink-0">
                 <div className="w-28 h-28 rounded-md bg-white/5 border-2 border-white/10 shadow-sm" />
