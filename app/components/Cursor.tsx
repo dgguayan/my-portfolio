@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 export default function Cursor() {
   const elRef = useRef<HTMLDivElement | null>(null);
   const innerRef = useRef<HTMLDivElement | null>(null);
+  const outerRotRef = useRef<HTMLDivElement | null>(null);
   const dotRef = useRef<HTMLDivElement | null>(null);
   const SIZE = 60;
 
@@ -71,6 +72,7 @@ export default function Cursor() {
     const clamp = (v: number, a: number, b: number) => Math.min(Math.max(v, a), b);
 
     const update = () => {
+      // mark raf cleared for onMove guard; we'll immediately schedule a new frame below
       raf = 0;
       if (!el) return;
 
@@ -134,10 +136,9 @@ export default function Cursor() {
       if (locked) {
         currRotate += ROTATE_SPEED_LOCKED;
       } else {
-        // slow continuous rotation when free
         currRotate += ROTATE_SPEED_FREE;
       }
-      // avoid modulo here so value always increases (prevents CSS rotating the short way when crossing +/-180deg)
+      // outer rotation is now handled by a CSS animation on .outer-rot (always running)
 
       // toggle CSS class for visuals
       el.classList.toggle('locked', locked);
@@ -145,7 +146,7 @@ export default function Cursor() {
       // apply computed width/height and position the element by its current size so it centers correctly
       el.style.width = `${Math.round(currW)}px`;
       el.style.height = `${Math.round(currH)}px`;
-      // outer transform: position and scale only (no rotation here)
+      // outer transform: position and scale only (outer rotation handled by CSS .outer-rot)
       el.style.transform = `translate3d(${currX - currW / 2}px, ${currY - currH / 2}px, 0) scale(${currentScale})`;
 
       // apply inner dot offset (translate from center)
@@ -153,7 +154,7 @@ export default function Cursor() {
       if (dotNode) {
         const tx = `calc(-50% + ${Math.round(currDotX)}px)`;
         const ty = `calc(-50% + ${Math.round(currDotY)}px)`;
-        // keep dot upright by placing it outside the rotating inner wrapper; just translate it
+        // dot stays upright — only translate
         dotNode.style.transform = `translate(${tx}, ${ty})`;
       }
 
@@ -162,23 +163,15 @@ export default function Cursor() {
         inner.style.transform = `rotate(${currRotate}deg)`;
       }
 
-      if (
-        locked ||
-        Math.abs(currX - mouseX) > 0.5 ||
-        Math.abs(currY - mouseY) > 0.5 ||
-        Math.abs(currW - targetW) > 0.5 ||
-        Math.abs(currH - targetH) > 0.5 ||
-        Math.abs(currentScale - targetScale) > 0.01
-      ) {
-        raf = requestAnimationFrame(update);
-      } else {
-        raf = 0;
-      }
+      // Always schedule the next frame so outer rotation continues even when idle
+      raf = requestAnimationFrame(update);
     };
 
     const prevCursor = document.body.style.cursor;
     document.addEventListener('mousemove', onMove);
     document.body.style.cursor = 'none';
+    // start continuous RAF loop immediately so rotation runs even if mouse doesn't move
+    if (!raf) raf = requestAnimationFrame(update);
 
     return () => {
       document.removeEventListener('mousemove', onMove);
@@ -190,14 +183,17 @@ export default function Cursor() {
   return (
     <>
       <div ref={elRef} className="gunscope" aria-hidden="true">
-        <div ref={innerRef} className="gunscope-inner">
-          {/* four corners */}
-          <div className="corner tl" />
-          <div className="corner tr" />
-          <div className="corner bl" />
-          <div className="corner br" />
+        {/* outer-rot is a CSS-animated wrapper that constantly spins */}
+        <div ref={outerRotRef} className="outer-rot">
+          <div ref={innerRef} className="gunscope-inner">
+            {/* four corners */}
+            <div className="corner tl" />
+            <div className="corner tr" />
+            <div className="corner bl" />
+            <div className="corner br" />
+          </div>
         </div>
-        {/* center square placed outside the rotating inner wrapper so it remains upright */}
+        {/* center square placed outside the rotating wrapper so it remains upright */}
         <div className="dot" ref={dotRef} />
       </div>
 
@@ -215,6 +211,22 @@ export default function Cursor() {
           transition: transform 0.03s linear;
           mix-blend-mode: normal;
         }
+
+        /* constant fast outer spin */
+        @keyframes outerSpin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .outer-rot {
+          width: 100%;
+          height: 100%;
+          display: block;
+          transform-origin: center center;
+          /* fast constant spin; adjust duration to control speed */
+          animation: outerSpin 2.0s linear infinite;
+        }
+        /* pause outer spin when locked (optional) */
+        .gunscope.locked .outer-rot { animation-play-state: paused; }
 
         .gunscope-inner {
           width: 100%;
