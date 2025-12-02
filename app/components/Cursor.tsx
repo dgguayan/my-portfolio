@@ -33,7 +33,7 @@ export default function Cursor() {
     let targetH = SIZE;
 
     // rotation state & speeds (degrees per frame)
-    // keep currRotate as a continuously increasing value (no modulo) to avoid CSS shortest-path interpolation resets
+    // inner decoration rotates only when NOT locked; when locked it stays static
     let currRotate = 0;
     const ROTATE_SPEED_FREE = 0.06;
     const ROTATE_SPEED_LOCKED = 0.6;
@@ -112,10 +112,25 @@ export default function Cursor() {
         // lerp inner dot toward target
         currDotX += (targetDotX - currDotX) * 0.22;
         currDotY += (targetDotY - currDotY) * 0.22;
+
+        // stop rotation immediately when locked:
+        // reset inner rotation value so inner stays upright
+        currRotate = 0;
+        if (outerRotRef?.current) {
+          // remove the CSS animation so the outer wrapper stops spinning immediately
+          outerRotRef.current.style.animation = 'none';
+          // force outer to a neutral rotation visually
+          outerRotRef.current.style.transform = 'rotate(0deg)';
+        }
       } else {
         // release lock and follow mouse
         locked = false;
         lockedEl = null;
+        // resume outer rotation when unlocked: remove inline override so CSS animation applies again
+        if (outerRotRef?.current) {
+          outerRotRef.current.style.animation = '';
+          outerRotRef.current.style.transform = '';
+        }
         targetW = SIZE;
         targetH = SIZE;
         currX += (mouseX - currX) * 0.22;
@@ -132,13 +147,11 @@ export default function Cursor() {
         currDotY += (targetDotY - currDotY) * 0.18;
       }
 
-      // rotate inner design slightly faster when locked
-      if (locked) {
-        currRotate += ROTATE_SPEED_LOCKED;
-      } else {
+      // rotate inner decoration only when not locked; keep it static while locked
+      if (!locked) {
         currRotate += ROTATE_SPEED_FREE;
       }
-      // outer rotation is now handled by a CSS animation on .outer-rot (always running)
+      // outer rotation is handled via CSS animation on .outer-rot (paused when locked)
 
       // toggle CSS class for visuals
       el.classList.toggle('locked', locked);
@@ -160,7 +173,8 @@ export default function Cursor() {
 
       // apply rotation to inner visual wrapper (separate from outer position transform)
       if (inner) {
-        inner.style.transform = `rotate(${currRotate}deg)`;
+        // force inner to 0deg while locked, otherwise apply JS-driven rotation
+        inner.style.transform = locked ? 'rotate(0deg)' : `rotate(${currRotate}deg)`;
       }
 
       // Always schedule the next frame so outer rotation continues even when idle
