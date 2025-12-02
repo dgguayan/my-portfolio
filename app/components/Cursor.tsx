@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 
 export default function Cursor() {
   const elRef = useRef<HTMLDivElement | null>(null);
+  const innerRef = useRef<HTMLDivElement | null>(null);
   const dotRef = useRef<HTMLDivElement | null>(null);
   const SIZE = 60;
 
@@ -11,6 +12,7 @@ export default function Cursor() {
     if ('ontouchstart' in window) return; // don't force on touch devices
 
     const el = elRef.current;
+    const inner = innerRef.current;
     const dotEl = dotRef.current;
     if (!el) return;
 
@@ -28,6 +30,12 @@ export default function Cursor() {
     let currH = SIZE;
     let targetW = SIZE;
     let targetH = SIZE;
+
+    // rotation state & speeds (degrees per frame)
+    // keep currRotate as a continuously increasing value (no modulo) to avoid CSS shortest-path interpolation resets
+    let currRotate = 0;
+    const ROTATE_SPEED_FREE = 0.06;
+    const ROTATE_SPEED_LOCKED = 0.6;
 
     // inner dot offset (relative to center), animated
     let currDotX = 0;
@@ -122,18 +130,36 @@ export default function Cursor() {
         currDotY += (targetDotY - currDotY) * 0.18;
       }
 
+      // rotate inner design slightly faster when locked
+      if (locked) {
+        currRotate += ROTATE_SPEED_LOCKED;
+      } else {
+        // slow continuous rotation when free
+        currRotate += ROTATE_SPEED_FREE;
+      }
+      // avoid modulo here so value always increases (prevents CSS rotating the short way when crossing +/-180deg)
+
       // toggle CSS class for visuals
       el.classList.toggle('locked', locked);
 
       // apply computed width/height and position the element by its current size so it centers correctly
       el.style.width = `${Math.round(currW)}px`;
       el.style.height = `${Math.round(currH)}px`;
+      // outer transform: position and scale only (no rotation here)
       el.style.transform = `translate3d(${currX - currW / 2}px, ${currY - currH / 2}px, 0) scale(${currentScale})`;
 
       // apply inner dot offset (translate from center)
       const dotNode = dotRef.current ?? el.querySelector('.dot') as HTMLElement | null;
       if (dotNode) {
-        dotNode.style.transform = `translate(calc(-50% + ${Math.round(currDotX)}px), calc(-50% + ${Math.round(currDotY)}px))`;
+        const tx = `calc(-50% + ${Math.round(currDotX)}px)`;
+        const ty = `calc(-50% + ${Math.round(currDotY)}px)`;
+        // keep dot upright by placing it outside the rotating inner wrapper; just translate it
+        dotNode.style.transform = `translate(${tx}, ${ty})`;
+      }
+
+      // apply rotation to inner visual wrapper (separate from outer position transform)
+      if (inner) {
+        inner.style.transform = `rotate(${currRotate}deg)`;
       }
 
       if (
@@ -164,12 +190,14 @@ export default function Cursor() {
   return (
     <>
       <div ref={elRef} className="gunscope" aria-hidden="true">
-        {/* four corners */}
-        <div className="corner tl" />
-        <div className="corner tr" />
-        <div className="corner bl" />
-        <div className="corner br" />
-        {/* center square */}
+        <div ref={innerRef} className="gunscope-inner">
+          {/* four corners */}
+          <div className="corner tl" />
+          <div className="corner tr" />
+          <div className="corner bl" />
+          <div className="corner br" />
+        </div>
+        {/* center square placed outside the rotating inner wrapper so it remains upright */}
         <div className="dot" ref={dotRef} />
       </div>
 
@@ -186,6 +214,14 @@ export default function Cursor() {
           transform: translate3d(-9999px, -9999px, 0);
           transition: transform 0.03s linear;
           mix-blend-mode: normal;
+        }
+
+        .gunscope-inner {
+          width: 100%;
+          height: 100%;
+          transform-origin: center center;
+          /* transition removed — rotation is driven by RAF to avoid CSS shortest-path resets */
+          display: block;
         }
 
         /* slight visual feedback when locked */
