@@ -6,6 +6,7 @@ import Experience from './components/Experience';
 import Contact from './components/Contact';
 import Filter from './components/Filter';
 import TechStack from './components/TechStack';
+import SpaceInvaders from './components/SpaceInvaders';
 import Cursor from './components/Cursor';
 
 function multipleBoxShadow(n: number) {
@@ -128,6 +129,7 @@ export default function Home() {
       <ProjectDetail />
       <Experience />
       <Contact />
+      <SpaceInvaders />
     </main>
   );
 }
