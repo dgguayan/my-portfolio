@@ -7,41 +7,45 @@ export default function Header() {
     // make header sticky, semi-transparent and above background elements
     <header className="sticky top-0 z-50 w-full bg-black/80 backdrop-blur-sm p-4 border-b-4 border-white">
       <nav className="container mx-auto flex justify-between items-center">
-        <h1 className="text-4xl font-bold text-black dark:text-white"><span className='font-black'>{"<"} D.G /{">"}</span></h1>
+        <Link href="/#hero" aria-label="Go to Projects" title="Go to Projects">
+          <h1 className="text-4xl font-bold text-black dark:text-white cursor-pointer">
+            <span className='font-black'>{"<"} D.G /{">"}</span>
+          </h1>
+        </Link>
         <ul className="flex gap-6 items-center uppercase">
           <li>
             <Link
-              className="text-2xl text-black dark:text-white flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              className="text-lg text-black dark:text-white flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               href="/#project-detail"
             >
-              <FolderOpen size={32} />
+              <FolderOpen size={25} />
               <span>Projects</span>
             </Link>
           </li>
           <li>
             <Link
-              className="text-2xl text-black dark:text-white flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              className="text-lg text-black dark:text-white flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               href="/#techstack"
             >
-              <Code size={32} />
+              <Code size={25} />
               <span>Tech Stack</span>
             </Link>
           </li>
           <li>
             <Link
-              className="text-2xl text-black dark:text-white flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              className="text-lg text-black dark:text-white flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               href="/#experience"
             >
-              <Buildings size={32} />
+              <Buildings size={25} />
               <span>Experience</span>
             </Link>
           </li>
           <li>
             <Link
-              className="text-2xl text-black dark:text-white flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              className="text-lg text-black dark:text-white flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               href="/#contactme"
             >
-              <Phone size={32} />
+              <Phone size={25} />
               <span>Contact Me</span>
             </Link>
           </li>

@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { Mouse, MouseLeftClick } from "@phosphor-icons/react";
+import { Mouse, MouseLeftClick, PauseIcon, PlayIcon, Trash } from "@phosphor-icons/react";
 
 export default function SpaceInvaders() {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -256,8 +256,45 @@ export default function SpaceInvaders() {
 				<canvas ref={canvasRef} style={{ width: "100%", borderRadius: 8, display: "block", margin: "0 auto" }} />
 			</div>
 			<div style={{ marginTop: 8, display: "flex", gap: 8, justifyContent: "center" }}>
-				<button className="border" onClick={toggleRunning} style={{ padding: "6px 10px", borderRadius: 5 }}>{running ? "Pause" : "Resume"}</button>
-				<button className="border" onClick={() => { setScore(0); scoreRef.current = 0; setLevel(1); levelRef.current = 1; }} style={{ padding: "6px 10px", borderRadius: 5 }}>Reset Score & Level</button>
+				<button
+					className="border"
+					onClick={toggleRunning}
+					style={{
+						padding: "6px 10px",
+						borderRadius: 5,
+						display: "inline-flex",
+						alignItems: "center",
+						gap: 6,
+					}}
+				>
+					{running ? (
+						<>
+							<PauseIcon style={{ verticalAlign: "middle" }} /> Pause
+						</>
+					) : (
+						<>
+							<PlayIcon style={{ verticalAlign: "middle" }} /> Resume
+						</>
+					)}
+				</button>
+				<button
+					className="border"
+					onClick={() => {
+						setScore(0);
+						scoreRef.current = 0;
+						setLevel(1);
+						levelRef.current = 1;
+					}}
+					style={{
+						padding: "6px 10px",
+						borderRadius: 5,
+						display: "inline-flex",
+						alignItems: "center",
+						gap: 6,
+					}}
+				>
+					<Trash />Reset Score & Level
+				</button>
 			</div>
 		</div>
 	);
