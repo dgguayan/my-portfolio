@@ -2,235 +2,256 @@
 import React, { useEffect, useRef, useState } from "react";
 
 export default function SpaceInvaders() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const rafRef = useRef<number | null>(null);
-  const [score, setScore] = useState(0);
-  const scoreRef = useRef<number>(score);
-  const [running, setRunning] = useState(true);
-  const runningRef = useRef<boolean>(running);
+	const canvasRef = useRef<HTMLCanvasElement | null>(null);
+	const rafRef = useRef<number | null>(null);
+	const [score, setScore] = useState(0);
+	const scoreRef = useRef<number>(score);
 
-  const keys = useRef<Record<string, boolean>>({});
+	// level tracking
+	const [level, setLevel] = useState(1);
+	const levelRef = useRef<number>(level);
 
-  // keep ref in sync when toggling running
-  const toggleRunning = () => {
-    setRunning((r) => {
-      runningRef.current = !r;
-      return !r;
-    });
-  };
+	const [running, setRunning] = useState(true);
+	const runningRef = useRef<boolean>(running);
 
-  // keep ref in sync when score changes (e.g. from outside)
-  React.useEffect(() => {
-    scoreRef.current = score;
-  }, [score]);
+	const keys = useRef<Record<string, boolean>>({});
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      keys.current[e.key.toLowerCase()] = e.type === "keydown";
-      if (e.key === " ") e.preventDefault();
-    };
-    window.addEventListener("keydown", onKey);
-    window.addEventListener("keyup", onKey);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("keyup", onKey);
-    };
-  }, []);
+	// keep ref in sync when toggling running
+	const toggleRunning = () => {
+		setRunning((r) => {
+			runningRef.current = !r;
+			return !r;
+		});
+	};
 
-  useEffect(() => {
-    const canvas = canvasRef.current!;
-    const ctx = canvas.getContext("2d")!;
-    const DPR = Math.max(1, window.devicePixelRatio || 1);
+	// keep ref in sync when score changes (e.g. from outside)
+	React.useEffect(() => {
+		scoreRef.current = score;
+	}, [score]);
 
-    let W = 640;
-    let H = 360;
-    function resize() {
-      const rect = canvas.getBoundingClientRect();
-      W = rect.width || 640;
-      H = Math.round((W * 360) / 640);
-      canvas.width = Math.round(W * DPR);
-      canvas.height = Math.round(H * DPR);
-      canvas.style.width = `${W}px`;
-      canvas.style.height = `${H}px`;
-      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    }
-    resize();
-    window.addEventListener("resize", resize);
+	// keep ref in sync when level changes
+	React.useEffect(() => {
+		levelRef.current = level;
+	}, [level]);
 
-    // Player
-    const player = { x: W / 2, y: H - 28, w: 44, speed: 5 };
+	useEffect(() => {
+		const onKey = (e: KeyboardEvent) => {
+			keys.current[e.key.toLowerCase()] = e.type === "keydown";
+			if (e.key === " ") e.preventDefault();
+		};
+		window.addEventListener("keydown", onKey);
+		window.addEventListener("keyup", onKey);
+		return () => {
+			window.removeEventListener("keydown", onKey);
+			window.removeEventListener("keyup", onKey);
+		};
+	}, []);
 
-    // Bullets and invaders
-    const bullets: { x: number; y: number; vy: number }[] = [];
-    const invaders: { x: number; y: number; w: number; h: number; alive: boolean }[] = [];
-    const cols = 6, rows = 3;
-    let invSpeed = 0.6;
-    let invDir = 1;
-    const spacingX = 64, spacingY = 44;
-    const startX = 60, startY = 36;
+	useEffect(() => {
+		const canvas = canvasRef.current!;
+		const ctx = canvas.getContext("2d")!;
+		const DPR = Math.max(1, window.devicePixelRatio || 1);
 
-    function spawnInvaders() {
-      invaders.length = 0;
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          invaders.push({
-            x: startX + c * spacingX,
-            y: startY + r * spacingY,
-            w: 36,
-            h: 20,
-            alive: true,
-          });
-        }
-      }
-    }
-    spawnInvaders();
+		let W = 640;
+		let H = 360;
+		function resize() {
+			const rect = canvas.getBoundingClientRect();
+			W = rect.width || 640;
+			H = Math.round((W * 360) / 640);
+			canvas.width = Math.round(W * DPR);
+			canvas.height = Math.round(H * DPR);
+			canvas.style.width = `${W}px`;
+			canvas.style.height = `${H}px`;
+			ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+		}
+		resize();
+		window.addEventListener("resize", resize);
 
-    let lastShot = 0;
-    const shootCooldown = 300;
+		// Player
+		const player = { x: W / 2, y: H - 28, w: 44, speed: 5 };
 
-    function fire() {
-      const now = performance.now();
-      if (now - lastShot < shootCooldown) return;
-      bullets.push({ x: player.x, y: player.y - 12, vy: -7 });
-      lastShot = now;
-    }
+		// Bullets and invaders
+		const bullets: { x: number; y: number; vy: number }[] = [];
+		const invaders: { x: number; y: number; w: number; h: number; alive: boolean }[] = [];
+		const cols = 6, rows = 3;
+		let invSpeed = 0.6;
+		let invDir = 1;
+		const spacingX = 64, spacingY = 44;
+		const startX = 60, startY = 36;
 
-    function update() {
-      // input
-      if (keys.current["arrowleft"] || keys.current["a"]) player.x -= player.speed;
-      if (keys.current["arrowright"] || keys.current["d"]) player.x += player.speed;
-      if (keys.current[" "]) fire();
-      player.x = Math.max(20, Math.min(W - 20, player.x));
+		function spawnInvaders() {
+			invaders.length = 0;
+			for (let r = 0; r < rows; r++) {
+				for (let c = 0; c < cols; c++) {
+					invaders.push({
+						x: startX + c * spacingX,
+						y: startY + r * spacingY,
+						w: 36,
+						h: 20,
+						alive: true,
+					});
+				}
+			}
+		}
+		spawnInvaders();
 
-      // bullets
-      for (let i = bullets.length - 1; i >= 0; i--) {
-        bullets[i].y += bullets[i].vy;
-        if (bullets[i].y < -10) bullets.splice(i, 1);
-      }
+		let lastShot = 0;
+		const shootCooldown = 300;
 
-      // invader bounds & movement
-      let left = Infinity, right = -Infinity;
-      for (const inv of invaders) if (inv.alive) { left = Math.min(left, inv.x); right = Math.max(right, inv.x + inv.w); }
-      if (left === Infinity) {
-        // all dead — respawn faster
-        setScore((s) => { const next = s + 100; scoreRef.current = next; return next; });
-        invSpeed *= 1.15;
-        spawnInvaders();
-      } else {
-        if (right + invSpeed * invDir > W - 20 || left + invSpeed * invDir < 20) {
-          invDir *= -1;
-          for (const inv of invaders) inv.y += 12;
-        } else {
-          for (const inv of invaders) inv.x += invSpeed * invDir;
-        }
-      }
+		function fire() {
+			const now = performance.now();
+			if (now - lastShot < shootCooldown) return;
+			bullets.push({ x: player.x, y: player.y - 12, vy: -7 });
+			lastShot = now;
+		}
 
-      // collisions
-      for (let b = bullets.length - 1; b >= 0; b--) {
-        const bu = bullets[b];
-        for (let j = 0; j < invaders.length; j++) {
-          const inv = invaders[j];
-          if (!inv.alive) continue;
-          if (bu.x > inv.x && bu.x < inv.x + inv.w && bu.y > inv.y && bu.y < inv.y + inv.h) {
-            inv.alive = false;
-            bullets.splice(b, 1);
-            setScore((s) => { const next = s + 10; scoreRef.current = next; return next; });
-            break;
-          }
-        }
-      }
+		function update() {
+			// input
+			if (keys.current["arrowleft"] || keys.current["a"]) player.x -= player.speed;
+			if (keys.current["arrowright"] || keys.current["d"]) player.x += player.speed;
+			if (keys.current[" "]) fire();
+			player.x = Math.max(20, Math.min(W - 20, player.x));
 
-      // invaders reach player -> reset
-      for (const inv of invaders) {
-        if (!inv.alive) continue;
-        if (inv.y + inv.h >= player.y - 6) {
-          spawnInvaders();
-          bullets.length = 0;
-          invSpeed = 0.6;
-          setScore(0);
-          scoreRef.current = 0;
-          break;
-        }
-      }
-    }
+			// bullets
+			for (let i = bullets.length - 1; i >= 0; i--) {
+				bullets[i].y += bullets[i].vy;
+				if (bullets[i].y < -10) bullets.splice(i, 1);
+			}
 
-    function draw() {
-      ctx.clearRect(0, 0, W, H);
-      // player
-      ctx.fillStyle = "#ffffff";
-      ctx.strokeStyle = "#000";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(player.x - 18, player.y + 6);
-      ctx.lineTo(player.x + 18, player.y + 6);
-      ctx.quadraticCurveTo(player.x, player.y - 12, player.x - 18, player.y + 6);
-      ctx.fill(); ctx.stroke();
+			// invader bounds & movement
+			let left = Infinity, right = -Infinity;
+			for (const inv of invaders) if (inv.alive) { left = Math.min(left, inv.x); right = Math.max(right, inv.x + inv.w); }
+			if (left === Infinity) {
+				// all dead — respawn faster; increment level
+				setScore((s) => { const next = s + 100; scoreRef.current = next; return next; });
+				// bump level
+				setLevel((l) => {
+					const next = l + 1;
+					levelRef.current = next;
+					return next;
+				});
+				invSpeed *= 1.15;
+				spawnInvaders();
+			} else {
+				if (right + invSpeed * invDir > W - 20 || left + invSpeed * invDir < 20) {
+					invDir *= -1;
+					for (const inv of invaders) inv.y += 12;
+				} else {
+					for (const inv of invaders) inv.x += invSpeed * invDir;
+				}
+			}
 
-      // invaders
-      ctx.fillStyle = "#ffffff";
-      ctx.strokeStyle = "#000";
-      for (const inv of invaders) {
-        if (!inv.alive) continue;
-        ctx.fillRect(inv.x, inv.y, inv.w, inv.h);
-        ctx.strokeRect(inv.x, inv.y, inv.w, inv.h);
-      }
+			// collisions
+			for (let b = bullets.length - 1; b >= 0; b--) {
+				const bu = bullets[b];
+				for (let j = 0; j < invaders.length; j++) {
+					const inv = invaders[j];
+					if (!inv.alive) continue;
+					if (bu.x > inv.x && bu.x < inv.x + inv.w && bu.y > inv.y && bu.y < inv.y + inv.h) {
+						inv.alive = false;
+						bullets.splice(b, 1);
+						setScore((s) => { const next = s + 10; scoreRef.current = next; return next; });
+						break;
+					}
+				}
+			}
 
-      // bullets
-      ctx.fillStyle = "#ffcc00";
-      for (const bu of bullets) ctx.fillRect(bu.x - 2, bu.y - 8, 4, 8);
+			// invaders reach player -> reset
+			for (const inv of invaders) {
+				if (!inv.alive) continue;
+				if (inv.y + inv.h >= player.y - 6) {
+					spawnInvaders();
+					bullets.length = 0;
+					invSpeed = 0.6;
+					setScore(0);
+					scoreRef.current = 0;
+					// reset level to 1 on defeat
+					setLevel(1);
+					levelRef.current = 1;
+					break;
+				}
+			}
+		}
 
-      // HUD
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "14px sans-serif";
-      ctx.fillText(`Score: ${scoreRef.current}`, 12, 20);
-    }
+		function draw() {
+			ctx.clearRect(0, 0, W, H);
+			// player
+			ctx.fillStyle = "#ffffff";
+			ctx.strokeStyle = "#000";
+			ctx.lineWidth = 2;
+			ctx.beginPath();
+			ctx.moveTo(player.x - 18, player.y + 6);
+			ctx.lineTo(player.x + 18, player.y + 6);
+			ctx.quadraticCurveTo(player.x, player.y - 12, player.x - 18, player.y + 6);
+			ctx.fill(); ctx.stroke();
 
-    let last = performance.now();
-    function loop(now: number) {
-      const dt = now - last;
-      last = now;
-      if (runningRef.current) update();
-      draw();
-      rafRef.current = requestAnimationFrame(loop);
-    }
-    rafRef.current = requestAnimationFrame(loop);
+			// invaders
+			ctx.fillStyle = "#ffffff";
+			ctx.strokeStyle = "#000";
+			for (const inv of invaders) {
+				if (!inv.alive) continue;
+				ctx.fillRect(inv.x, inv.y, inv.w, inv.h);
+				ctx.strokeRect(inv.x, inv.y, inv.w, inv.h);
+			}
 
-    // mouse moves player
-    function onMouse(e: MouseEvent) {
-      const rect = canvas.getBoundingClientRect();
-      player.x = Math.max(20, Math.min(W - 20, e.clientX - rect.left));
-    }
-    canvas.addEventListener("mousemove", onMouse);
+			// bullets
+			ctx.fillStyle = "#ffcc00";
+			for (const bu of bullets) ctx.fillRect(bu.x - 2, bu.y - 8, 4, 8);
 
-    // left mouse click to shoot
-    function onMouseDown(e: MouseEvent) {
-      // 0 is left button
-      if (e.button === 0) {
-        fire();
-      }
-    }
-    canvas.addEventListener("mousedown", onMouseDown);
+			// HUD
+			ctx.fillStyle = "#ffffff";
+			ctx.font = "14px sans-serif";
+			ctx.fillText(`Score: ${scoreRef.current}`, 12, 20);
+			ctx.fillText(`Level: ${levelRef.current}`, 12, 40);
+		}
 
-    return () => {
-      window.removeEventListener("resize", resize);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      canvas.removeEventListener("mousemove", onMouse);
-      canvas.removeEventListener("mousedown", onMouseDown);
-    };
-  }, []); // run once on mount — score/running toggles shouldn't recreate the whole effect
+		let last = performance.now();
+		function loop(now: number) {
+			const dt = now - last;
+			last = now;
+			if (runningRef.current) update();
+			draw();
+			rafRef.current = requestAnimationFrame(loop);
+		}
+		rafRef.current = requestAnimationFrame(loop);
 
-  return (
-    <div style={{ maxWidth: 900, margin: "28px auto", padding: 8 }}>
-      <div style={{ color: "white", marginBottom: 6, textAlign: "center", fontSize: 14 }}>
-        Space Invaders — use ← → or A/D to move, Space to shoot
-      </div>
-      <div style={{ width: "100%" }}>
-        <canvas ref={canvasRef} style={{ width: "100%", borderRadius: 8, display: "block", margin: "0 auto" }} />
-      </div>
-      <div style={{ marginTop: 8, display: "flex", gap: 8, justifyContent: "center" }}>
-        <button onClick={toggleRunning} style={{ padding: "6px 10px" }}>{running ? "Pause" : "Resume"}</button>
-        <button onClick={() => { setScore(0); scoreRef.current = 0; }} style={{ padding: "6px 10px" }}>Reset Score</button>
-      </div>
-    </div>
-  );
+		// mouse moves player
+		function onMouse(e: MouseEvent) {
+			const rect = canvas.getBoundingClientRect();
+			player.x = Math.max(20, Math.min(W - 20, e.clientX - rect.left));
+		}
+		canvas.addEventListener("mousemove", onMouse);
+
+		// left mouse click to shoot
+		function onMouseDown(e: MouseEvent) {
+			// 0 is left button
+			if (e.button === 0) {
+				fire();
+			}
+		}
+		canvas.addEventListener("mousedown", onMouseDown);
+
+		return () => {
+			window.removeEventListener("resize", resize);
+			if (rafRef.current) cancelAnimationFrame(rafRef.current);
+			canvas.removeEventListener("mousemove", onMouse);
+			canvas.removeEventListener("mousedown", onMouseDown);
+		};
+	}, []); // run once on mount — score/running toggles shouldn't recreate the whole effect
+
+	return (
+		<div id="space-invaders" style={{ maxWidth: 900, margin: "28px auto", padding: 8 }}>
+			<h3 className="text-7xl mb-8 uppercase font-black text-center">Space Invaders</h3>
+			<div style={{ color: "white", marginBottom: 6, textAlign: "center", fontSize: 14 }}>
+				Space Invaders — use ← → or A/D to move, Space to shoot
+			</div>
+			<div style={{ width: "100%" }}>
+				<canvas ref={canvasRef} style={{ width: "100%", borderRadius: 8, display: "block", margin: "0 auto" }} />
+			</div>
+			<div style={{ marginTop: 8, display: "flex", gap: 8, justifyContent: "center" }}>
+				<button onClick={toggleRunning} style={{ padding: "6px 10px" }}>{running ? "Pause" : "Resume"}</button>
+				<button onClick={() => { setScore(0); scoreRef.current = 0; setLevel(1); levelRef.current = 1; }} style={{ padding: "6px 10px" }}>Reset Score & Level</button>
+			</div>
+		</div>
+	);
 }
