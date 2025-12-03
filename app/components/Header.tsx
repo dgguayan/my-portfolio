@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { FolderOpen, Code, Buildings, Phone, Alien } from '@phosphor-icons/react';
 
 export default function Header() {
@@ -9,50 +10,52 @@ export default function Header() {
         <h1 className="text-4xl font-bold text-black dark:text-white"><span className='font-black'>{"<"} D.G /{">"}</span></h1>
         <ul className="flex gap-6 items-center uppercase">
           <li>
-            <a
+            <Link
               className="text-2xl text-black dark:text-white flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-              href="#project-detail"
+              href="/#project-detail"
             >
               <FolderOpen size={32} />
               <span>Projects</span>
-            </a>
+            </Link>
           </li>
           <li>
-            <a
+            <Link
               className="text-2xl text-black dark:text-white flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-              href="#techstack"
+              href="/#techstack"
             >
               <Code size={32} />
               <span>Tech Stack</span>
-            </a>
+            </Link>
           </li>
           <li>
-            <a
+            <Link
               className="text-2xl text-black dark:text-white flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-              href="#experience"
+              href="/#experience"
             >
               <Buildings size={32} />
               <span>Experience</span>
-            </a>
+            </Link>
           </li>
           <li>
-            <a
+            <Link
               className="text-2xl text-black dark:text-white flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-              href="#contactme"
+              href="/#contactme"
             >
               <Phone size={32} />
               <span>Contact Me</span>
-            </a>
+            </Link>
           </li>
         </ul>
-        <a
-          href="#space-invaders"
+
+        {/* link to the standalone Space Invaders route */}
+        <Link
+          href="/space-invaders"
           aria-label="Alien"
           title="Alien"
           className="ml-2 p-2 rounded-full transition-colors text-xl text-black dark:text-white flex items-center"
         >
           <Alien size={32} />
-        </a>
+        </Link>
       </nav>
     </header>
   );

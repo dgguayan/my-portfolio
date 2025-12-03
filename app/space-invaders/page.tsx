@@ -1,13 +1,8 @@
-import Header from './components/Header';
-import Hero from './components/Hero';
-import ProjectsGrid from './components/ProjectsGrid';
-import ProjectDetail from './components/ProjectDetail';
-import Experience from './components/Experience';
-import Contact from './components/Contact';
-import Filter from './components/Filter';
-import TechStack from './components/TechStack';
-import SpaceInvaders from './components/SpaceInvaders';
-import Cursor from './components/Cursor';
+import React from 'react';
+import Header from '../components/Header';
+import SpaceInvaders from '../components/SpaceInvaders';
+import Cursor from '../components/Cursor';
+import Link from 'next/link';
 
 function multipleBoxShadow(n: number) {
   function r() {
@@ -20,8 +15,8 @@ function multipleBoxShadow(n: number) {
   return value;
 }
 
-export default function Home() {
-  // generate star layers server-side
+export default function SpaceInvadersPage() {
+    // generate star layers server-side
   const shadowsSmall = multipleBoxShadow(700);
   const shadowsMedium = multipleBoxShadow(200);
   const shadowsBig = multipleBoxShadow(100);
@@ -107,28 +102,26 @@ export default function Home() {
       to   { transform: translateY(-2000px); }
     }
   `;
-
-  return (
-    <main>
-      <Cursor />
-      {/* injected star background (behind everything) */}
-      <div className="stars-bg" aria-hidden="true">
-        <div id="stars" />
-        <div id="stars2" />
-        <div id="stars3" />
-      </div>
-
-      {/* inject generated CSS */}
-      <style dangerouslySetInnerHTML={{ __html: starCss }} />
-
-      <Header />
-      <Hero />
-      <Filter />
-      <ProjectsGrid />
-      <TechStack />
-      <ProjectDetail />
-      <Experience />
-      <Contact />
-    </main>
-  );
+	return (
+		<main>
+            <Cursor />
+                  {/* injected star background (behind everything) */}
+                  <div className="stars-bg" aria-hidden="true">
+                    <div id="stars" />
+                    <div id="stars2" />
+                    <div id="stars3" />
+                  </div>
+            
+                  {/* inject generated CSS */}
+                  <style dangerouslySetInnerHTML={{ __html: starCss }} />
+			<Header />
+			<section className="py-8">
+				<div className="container mx-auto px-6">
+					
+					{/* The SpaceInvaders component (standalone page) */}
+					<SpaceInvaders />
+				</div>
+			</section>
+		</main>
+	);
 }

@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
+import { Mouse, MouseLeftClick } from "@phosphor-icons/react";
 
 export default function SpaceInvaders() {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -200,9 +201,11 @@ export default function SpaceInvaders() {
 
 			// HUD
 			ctx.fillStyle = "#ffffff";
-			ctx.font = "14px sans-serif";
-			ctx.fillText(`Score: ${scoreRef.current}`, 12, 20);
-			ctx.fillText(`Level: ${levelRef.current}`, 12, 40);
+			ctx.font = "bold 20px sans-serif";
+			ctx.fillText(`Score: ${scoreRef.current}`, 20, 38);
+			const levelText = `Level: ${levelRef.current}`;
+			const levelWidth = ctx.measureText(levelText).width;
+			ctx.fillText(levelText, W - levelWidth - 20, 38);
 		}
 
 		let last = performance.now();
@@ -242,15 +245,19 @@ export default function SpaceInvaders() {
 	return (
 		<div id="space-invaders" style={{ maxWidth: 900, margin: "28px auto", padding: 8 }}>
 			<h3 className="text-7xl mb-8 uppercase font-black text-center">Space Invaders</h3>
-			<div style={{ color: "white", marginBottom: 6, textAlign: "center", fontSize: 14 }}>
-				Space Invaders — use ← → or A/D to move, Space to shoot
+			<div style={{ color: "white", marginBottom: 6, textAlign: "center", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
+				<span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+					Space Invaders — use the <Mouse style={{ verticalAlign: "middle", margin: "0 2px" }} size={18} /> or A/D keys to move &nbsp;&amp;&nbsp;
+				</span>
+				<MouseLeftClick style={{ verticalAlign: "middle", margin: "0 2px" }} size={18} />
+				<span>or Space to shoot.</span>
 			</div>
 			<div style={{ width: "100%" }}>
 				<canvas ref={canvasRef} style={{ width: "100%", borderRadius: 8, display: "block", margin: "0 auto" }} />
 			</div>
 			<div style={{ marginTop: 8, display: "flex", gap: 8, justifyContent: "center" }}>
-				<button onClick={toggleRunning} style={{ padding: "6px 10px" }}>{running ? "Pause" : "Resume"}</button>
-				<button onClick={() => { setScore(0); scoreRef.current = 0; setLevel(1); levelRef.current = 1; }} style={{ padding: "6px 10px" }}>Reset Score & Level</button>
+				<button className="border" onClick={toggleRunning} style={{ padding: "6px 10px", borderRadius: 5 }}>{running ? "Pause" : "Resume"}</button>
+				<button className="border" onClick={() => { setScore(0); scoreRef.current = 0; setLevel(1); levelRef.current = 1; }} style={{ padding: "6px 10px", borderRadius: 5 }}>Reset Score & Level</button>
 			</div>
 		</div>
 	);
