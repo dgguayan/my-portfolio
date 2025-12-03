@@ -263,8 +263,9 @@ export default function Cursor() {
         .corner::after {
           content: "";
           position: absolute;
-          background: #ffffff;
+          background: #ffffffff;
           border-radius: 2px;
+          outline: 1px solid #000; /* black outline for clarity */
         }
 
         /* bar sizes */
@@ -307,6 +308,7 @@ export default function Cursor() {
           transform: translate(-50%, -50%);
           background: #ffffff;
           box-shadow: none;
+          outline: 1px solid #000; /* black outline for clarity */
         }
 
         /* visual tweaks when "locked" will be done via size/position from JS; optional style hook */
