@@ -8,6 +8,7 @@ import Filter from './components/Filter';
 import TechStack from './components/TechStack';
 import SpaceInvaders from './components/SpaceInvaders';
 import Cursor from './components/Cursor';
+import BackToTop from './components/BackToTop';
 
 function multipleBoxShadow(n: number) {
   function r() {
@@ -129,6 +130,7 @@ export default function Home() {
       <ProjectDetail />
       <Experience />
       <Contact />
+      <BackToTop />
     </main>
   );
 }
