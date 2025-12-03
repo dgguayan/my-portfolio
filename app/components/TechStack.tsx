@@ -83,7 +83,6 @@ export default function TechStack() {
     'Unity': <SiUnity className="w-10 h-10" />,
     'Git': <SiGit className="w-10 h-10" />,
     // 'Java': <SiJava className="w-10 h-10" />,
-    // fallback for items without a dedicated icon (C#, COBOL, FlutterFlow, Bubble.io, MagicaVoxel, React Native)
   };
 
   return (

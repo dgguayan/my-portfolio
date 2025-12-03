@@ -4,7 +4,6 @@ import { FolderOpen, Code, Buildings, Phone, Alien } from '@phosphor-icons/react
 
 export default function Header() {
   return (
-    // make header sticky, semi-transparent and above background elements
     <header className="sticky top-0 z-50 w-full bg-black/80 backdrop-blur-sm p-4 border-b-4 border-white">
       <nav className="container mx-auto flex justify-between items-center">
         <Link href="/#hero" aria-label="Go to Projects" title="Go to Projects">

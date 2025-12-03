@@ -3,6 +3,11 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* binary star sizes — change these to resize the 0/1 stars globally */
+  --binary-size-small: 1px;
+  --binary-size-medium: 5px;
+  --binary-size-big: 10px;
 }
 
 /* add a class-based override so JS can toggle theme */
