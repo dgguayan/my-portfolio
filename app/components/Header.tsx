@@ -1,82 +1,64 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { FolderOpen, Code, Buildings, Phone, Sun, MoonStars } from '@phosphor-icons/react';
+import Link from 'next/link';
+import { FolderOpen, Code, Buildings, Phone, Alien } from '@phosphor-icons/react';
 
 export default function Header() {
-  const [isDark, setIsDark] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const stored = typeof window !== 'undefined' ? localStorage.getItem('theme') : null;
-    const prefersDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const startDark = stored ? stored === 'dark' : prefersDark;
-    setIsDark(startDark);
-    if (startDark) document.documentElement.classList.add('dark');
-    else document.documentElement.classList.remove('dark');
-  }, []);
-
-  const toggleTheme = () => {
-    const next = !isDark;
-    setIsDark(next);
-    if (next) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  };
-
   return (
-    // make header sticky, semi-transparent and above background elements
     <header className="sticky top-0 z-50 w-full bg-black/80 backdrop-blur-sm p-4 border-b-4 border-white">
       <nav className="container mx-auto flex justify-between items-center">
-        <h1 className="text-4xl font-bold text-black dark:text-white"><span className='font-black'>{"<"} D.G /{">"}</span></h1>
+        <Link href="/#hero" aria-label="Go to Projects" title="Go to Projects">
+          <h1 className="text-4xl font-bold text-black dark:text-white cursor-pointer">
+            <span className='font-black'>{"<"} D.G /{">"}</span>
+          </h1>
+        </Link>
         <ul className="flex gap-6 items-center uppercase">
           <li>
-            <a
-              className="text-2xl text-black dark:text-white flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-              href="#project-detail"
+            <Link
+              className="text-lg text-black dark:text-white flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              href="/#project-detail"
             >
-              <FolderOpen size={32} />
+              <FolderOpen size={25} />
               <span>Projects</span>
-            </a>
+            </Link>
           </li>
           <li>
-            <a
-              className="text-2xl text-black dark:text-white flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-              href="#techstack"
+            <Link
+              className="text-lg text-black dark:text-white flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              href="/#techstack"
             >
-              <Code size={32} />
+              <Code size={25} />
               <span>Tech Stack</span>
-            </a>
+            </Link>
           </li>
           <li>
-            <a
-              className="text-2xl text-black dark:text-white flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-              href="#experience"
+            <Link
+              className="text-lg text-black dark:text-white flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              href="/#experience"
             >
-              <Buildings size={32} />
+              <Buildings size={25} />
               <span>Experience</span>
-            </a>
+            </Link>
           </li>
           <li>
-            <a
-              className="text-2xl text-black dark:text-white flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-              href="#contactme"
+            <Link
+              className="text-lg text-black dark:text-white flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              href="/#contactme"
             >
-              <Phone size={32} />
+              <Phone size={25} />
               <span>Contact Me</span>
-            </a>
+            </Link>
           </li>
         </ul>
-        <button
-          onClick={toggleTheme}
-          aria-label="Toggle theme"
-          title="Toggle theme"
-          className="ml-2 p-2 rounded-full transition-colors text-xl text-black dark:text-white"
+
+        {/* link to the standalone Space Invaders route */}
+        <Link
+          href="/space-invaders"
+          aria-label="Alien"
+          title="Alien"
+          className="ml-2 p-2 rounded-full transition-colors text-xl text-black dark:text-white flex items-center"
         >
-          {isDark ? <Sun size={32} color="#ffffff" weight="fill" /> : <MoonStars size={32} color="#ffffff" weight="fill" />}
-        </button>
+          <Alien size={32} />
+        </Link>
       </nav>
     </header>
   );

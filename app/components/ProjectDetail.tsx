@@ -39,7 +39,7 @@ export default function ProjectDetail() {
       duration: 'Aug 2023 — Dec 2023',
       repository: 'https://example.com/repo3',
     },
-    // add more projects as needed
+    // adding more projects soon
   ];
 
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
@@ -47,19 +47,15 @@ export default function ProjectDetail() {
 
   const otherProjects = useMemo(() => Projects.filter((_, i) => i !== selectedIndex), [Projects, selectedIndex]);
 
-  // If there are more than 2 projects total, start with extras hidden and show a "Load more" button.
-  // Otherwise (<=2 projects) show up to 2 extras immediately.
   const initialExtra = Projects.length > 2 ? 0 : Math.min(2, otherProjects.length);
   const [visibleExtra, setVisibleExtra] = useState<number>(initialExtra);
 
-  // Load 2 more extras per click
   const showMore = () => setVisibleExtra((v) => Math.min(otherProjects.length, v + 2));
 
   const openProject = (projId: string) => {
     const idx = Projects.findIndex((p) => p.id === projId);
     if (idx !== -1) {
       setSelectedIndex(idx);
-      // after opening a new project, hide extras if there are >2 projects (keep UX consistent)
       const rem = Projects.length - 1;
       setVisibleExtra(Projects.length > 2 ? 0 : Math.min(2, rem));
       if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -139,12 +135,11 @@ export default function ProjectDetail() {
         {/* main project */}
         <RenderFullProject proj={selectedProject} />
 
-        {/* additional full-size project detail sections (only visibleExtra shown) */}
+        {/* additional full-size project detail sections */}
         {otherProjects.slice(0, visibleExtra).map((p) => (
           <RenderFullProject proj={p} key={p.id} />
         ))}
 
-        {/* load more button (appears when there are hidden extras) */}
         {remaining > 0 && (
           <div className="mt-6 text-center">
             <button
