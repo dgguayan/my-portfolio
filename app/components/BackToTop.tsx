@@ -24,7 +24,7 @@ export default function BackToTop() {
       title="Back to top"
       onClick={handleClick}
       className={
-        "fixed right-5 bottom-6 z-50 flex items-center justify-center w-12 h-12 rounded-full " +
+        "fixed right-15 bottom-15 z-50 flex items-center justify-center w-12 h-12 rounded-full " +
         "bg-black text-white shadow-lg border-2 border-white transition-opacity duration-200 " +
         (visible ? "opacity-100" : "opacity-0 pointer-events-none")
       }
