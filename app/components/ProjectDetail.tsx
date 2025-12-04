@@ -1,6 +1,8 @@
 'use client';
-import React, { useState, useMemo, useRef } from 'react';
-import { SiReact, SiLaravel, SiPhp, SiMysql, SiFigma } from 'react-icons/si';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { SiReact, SiLaravel, SiPhp, SiMysql, SiFigma, SiUnity } from 'react-icons/si';
+import { PiFileCSharpFill } from 'react-icons/pi';
 
 export default function ProjectDetail() {
   const techs = [
@@ -9,11 +11,13 @@ export default function ProjectDetail() {
     { id: 'php', label: 'PHP', icon: <SiPhp className="w-8 h-8" /> },
     { id: 'mysql', label: 'MySQL', icon: <SiMysql className="w-8 h-8" /> },
     { id: 'figma', label: 'Figma', icon: <SiFigma className="w-8 h-8" /> },
+    { id: 'unity', label: 'Unity', icon: <SiUnity className="w-8 h-8" /> },
+    { id: 'csharp', label: 'C#', icon: <PiFileCSharpFill className="w-8 h-8" /> },
   ];
 
   const Projects = [
     {
-      id: 'p1',
+      id: 1,
       image: '/images/projects/mmid_admin.png',
       title: 'M.Montesclaros Holdings ID Management System',
       tech: ['Figma', 'Laravel', 'PHP', 'React', 'MySQL'],
@@ -39,33 +43,77 @@ export default function ProjectDetail() {
       repository: 'https://example.com/repo',
     },
     {
-      id: 'p2',
+      id: 2,
+      image: '/images/projects/dpadfinder.png',
       title: "D'PadFinder — Pad & Boarding Houses Finder",
-      tech: ['Figma', 'React Native', 'Firebase'],
+      tech: ['Figma'],
       summary: (
         <>
-          A mobile app for students to locate pads and boarding houses with filters and maps.<br />
-          Features include real-time listings, map integration, and advanced search filters for convenience.
+          <strong>Objective:</strong> 
+          <span className="block text-justify">
+            D'PadFinder aims to provide students with an accessible and affordable platform to search for nearby pad rentals, boarding houses, and dormitories. The goal is to simplify the housing search process for students by offering options that are budget-friendly and tailored to their academic lifestyles.
+          </span>
+          <strong>Key Features:</strong>
+          <ul className="list-disc list-inside ml-4 text-justify">
+            <li>Student-Focused Listings: Shows only student-friendly accomodations such as dorms, pads, and boarding houses with affordable pricing.</li>
+            <li>Search & Filter System: Allows students to filter listings by price, distance from campus, amenities, and room type.</li>
+            <li>Map Integration: Helps students located nearby accomodations quickly and visualize distance from their university.</li>
+            <li>User Reviews & Ratings: Provides feedback from other students to help users make informed decisions.</li>
+            <li>Landlord Portal: Allows property owners to post and manage their student-targeted listings.</li>
+          </ul>
         </>
       ),
-      role: 'Mobile Developer / Designer',
+      role: 'Full-stack Developer',
       duration: 'May 2024 — Jul 2024',
       repository: 'https://example.com/repo2',
     },
     {
-      id: 'p3',
+      id: 3,
+      image: '/images/projects/mkwd_admin.png',
       title: 'MKWD Online Management & Billing System',
-      tech: ['Laravel', 'PHP', 'React', 'MySQL'],
+      tech: ['Figma','Laravel', 'PHP', 'React', 'MySQL'],
       summary: (
         <>
-          An online management and billing system for Metro Kidapawan Water District.<br />
-          Enables efficient billing, customer management, and reporting for water utility operations.
+          <strong>Objective:</strong> 
+          <span className="block text-justify">
+            The objective of the MKWD Online Management & Billing System is to streamline and centralize the management of consumers, employees, billing, and service operations. The system aims to enhance efficiency, accuracy, and transparency across all workflows within the water district.
+          </span>
+          <strong>Key Features:</strong>
+          <ul className="list-disc list-inside ml-4 text-justify">
+            <li>User & Consumer Management: Handles the creation of consumers and employee roles such as plumbers, inspectors, meter readers, tellers, and admins.</li>
+            <li>Dashboard Monitoring: Tracks total consumers, unbilled accounts, monthly revenue, unpaid bills, service requests, and scheduled meter readings.</li>
+            <li>Billing & History Tracking: Stores complete billing histories and manages the end-to-end process from consumer registration to billing and payment.</li>
+            <li>Service Request Handling: Monitors consumer requests and supports workflow assignments for inspections, repairs, and meter-related tasks.</li>
+          </ul>
         </>
       ),
-      role: 'Full Stack Developer',
+      role: 'Full-Stack Developer',
       duration: 'Aug 2023 — Dec 2023',
       repository: 'https://example.com/repo3',
     },
+    {
+      id: 4,
+      image: '/images/projects/cmuwais.PNG',
+      title: 'CMU-WAIS | Wayfinding Interactive System',
+      tech: ['Figma', 'C#', 'Unity', 'MagicaVoxel'],
+      summary: (
+        <>
+          <strong>Objective:</strong> 
+          <span className="block text-justify">
+            The CMU Wayfinding Interactive System (CMU-WAIS) is designed to assist students, faculty, and visitors in navigating the Central Mindanao University campus. By providing an interactive 2.5D / Isometric map and navigation tools, the system aims to enhance user experience and reduce the time spent searching for locations on campus.
+          </span>
+          <strong>Key Features:</strong>
+          <ul className="list-disc list-inside ml-4 text-justify">
+            <li>3D Campus Map: Offers a detailed and interactive 3D representation of the CMU campus, including buildings, landmarks, and pathways.</li>
+            <li>Search Functionality: Allows users to search for specific buildings, departments, or facilities within the campus.</li>
+            <li>Navigation Assistance: Provides step-by-step directions and visual cues to guide users to their desired locations.</li>
+          </ul>
+        </>
+      ),
+      role: 'Front-End and Back-End Developer',
+      duration: 'Jan 2024 — Apr 2024',
+      repository: 'https://example.com/repo4',
+    }
     // More projects coming soon
   ];
 
@@ -79,7 +127,7 @@ export default function ProjectDetail() {
 
   const showMore = () => setVisibleExtra((v) => Math.min(otherProjects.length, v + 2));
 
-  const openProject = (projId: string) => {
+  const openProject = (projId: string | number) => {
     const idx = Projects.findIndex((p) => p.id === projId);
     if (idx !== -1) {
       setSelectedIndex(idx);
@@ -88,6 +136,37 @@ export default function ProjectDetail() {
       if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
+
+  // read search params via Next's client hook so the component reacts to client-side navigation
+  const searchParams = useSearchParams();
+
+  // respond whenever the search params change (client navigation)
+  useEffect(() => {
+    try {
+      const pid = searchParams?.get('project');
+      if (!pid) return;
+
+      // support forms: "p3" or "3" (normalize candidates)
+      const normalizedCandidates = [pid];
+      if (/^\d+$/.test(pid)) normalizedCandidates.push(`p${pid}`);
+      if (/^p\d+$/.test(pid)) normalizedCandidates.push(pid.replace(/^p/, ''));
+
+      const idx = Projects.findIndex((p) =>
+        normalizedCandidates.some((cand) => String(p.id) === cand)
+      );
+
+      if (idx !== -1) {
+        setSelectedIndex(idx);
+        // scroll to detail section if hash present
+        if (typeof window !== 'undefined' && window.location.hash === '#project-detail') {
+          const el = document.getElementById('project-detail');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [searchParams?.toString()]);
 
   // swipeable tech scroller for desktop (mouse drag) and native swipe on touch
   function TechScroller({ items }: { items: string[] }) {
