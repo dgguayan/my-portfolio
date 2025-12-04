@@ -5,8 +5,8 @@
   --foreground: #171717;
 
   /* binary star sizes — change these to resize the 0/1 stars globally */
-  --binary-size-small: 1px;
-  --binary-size-medium: 5px;
+  --binary-size-small: 3px;
+  --binary-size-medium: 6px;
   --binary-size-big: 10px;
 }
 
