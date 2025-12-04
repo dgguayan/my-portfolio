@@ -98,8 +98,8 @@ export default function ProjectDetail() {
       duration: 'Aug 2023 — Dec 2023',
       repository: 'https://example.com/repo3',
       privateRepo: true,
-      figmaUrl: 'https://www.figma.com/file/your-mkwd-mockup',
-      openProject: 'https://www.figma.com/file/your-mkwd-mockup',
+      figmaUrl: 'https://www.figma.com/proto/QTip4Iks9xBGZozVI9KD17/MKWD---METER-KIDAPAWAN-WATER-DISTRICT-BILLING-SYSTEM?node-id=4-57&t=4JXJ4aw5oF8AtuGR-1&scaling=contain&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=4%3A57',
+      openProject: 'https://www.figma.com/proto/QTip4Iks9xBGZozVI9KD17/MKWD---METER-KIDAPAWAN-WATER-DISTRICT-BILLING-SYSTEM?node-id=4-57&t=4JXJ4aw5oF8AtuGR-1&scaling=contain&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=4%3A57',
     },
     {
       id: 4,
