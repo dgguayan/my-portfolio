@@ -33,12 +33,12 @@ export default function ProjectsGrid() {
 			tech: "Figma, C#, Unity, MagicaVoxel",
 			image: '/images/projects/cmuwais.PNG',
 		},
-		{
-			id: 5,
-			title: "(Prototype) CMU FOODE | Central Mindanao University Food Ordering and Delivery System",
-			description: "Description",
-			tech: "Figma",
-		},
+		// {
+		// 	id: 5,
+		// 	title: "(Prototype) CMU FOODE | Central Mindanao University Food Ordering and Delivery System",
+		// 	description: "Description",
+		// 	tech: "Figma",
+		// },
 		// Adding more projects soon
 	];
 
