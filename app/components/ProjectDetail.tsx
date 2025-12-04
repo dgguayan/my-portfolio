@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { SiReact, SiLaravel, SiPhp, SiMysql, SiFigma } from 'react-icons/si';
 
 export default function ProjectDetail() {
@@ -14,9 +14,26 @@ export default function ProjectDetail() {
   const Projects = [
     {
       id: 'p1',
+      image: '/images/projects/mmid_admin.png',
       title: 'M.Montesclaros Holdings ID Management System',
-      tech: ['Laravel', 'PHP', 'React', 'MySQL'],
-      summary: 'This is a short summary of a specific project about the objective and the features of the system.',
+      tech: ['Figma', 'Laravel', 'PHP', 'React', 'MySQL'],
+      summary: (
+        <>
+          <strong>Objective:</strong> 
+          <span className="block text-justify">
+            Centralize and streamline employee identification data management.
+            The system simplifies the creation, updating, and monitoring of employee IDs, ensuring accuracy, efficiency, and ease of administration.
+          </span>
+          <strong>Key Features:</strong>
+          <ul className="list-disc list-inside ml-4 text-justify">
+            <li>Employee Data Storage: Securely stores all essential employee ID information in a centralized database.</li>
+            <li>Dynamic ID Template Management: Allows administrators to upload custom ID templates and automatically map employee data to the correct fields. Supports future or updated templates without requiring system changes.</li>
+            <li>ID Status Tracking: Monitors ID validity, alerts administrators when IDs are near expiration, and manages the renewal process.</li>
+            <li>Employee Status Monitoring: Tracks employee employment status, including active, retired, and terminated employees.</li>
+            <li>Automated Updates: Automatically reflects status changes and ensures ID-related actions align with current employment status.</li>
+          </ul>
+        </>
+      ),
       role: 'Frontend & Backend Developer',
       duration: 'Jan 2024 — Apr 2024',
       repository: 'https://example.com/repo',
@@ -25,7 +42,12 @@ export default function ProjectDetail() {
       id: 'p2',
       title: "D'PadFinder — Pad & Boarding Houses Finder",
       tech: ['Figma', 'React Native', 'Firebase'],
-      summary: 'Finder app for students to locate pads and boarding houses with filters and maps.',
+      summary: (
+        <>
+          A mobile app for students to locate pads and boarding houses with filters and maps.<br />
+          Features include real-time listings, map integration, and advanced search filters for convenience.
+        </>
+      ),
       role: 'Mobile Developer / Designer',
       duration: 'May 2024 — Jul 2024',
       repository: 'https://example.com/repo2',
@@ -34,12 +56,17 @@ export default function ProjectDetail() {
       id: 'p3',
       title: 'MKWD Online Management & Billing System',
       tech: ['Laravel', 'PHP', 'React', 'MySQL'],
-      summary: 'Online management and billing system for Metro Kidapawan Water District.',
+      summary: (
+        <>
+          An online management and billing system for Metro Kidapawan Water District.<br />
+          Enables efficient billing, customer management, and reporting for water utility operations.
+        </>
+      ),
       role: 'Full Stack Developer',
       duration: 'Aug 2023 — Dec 2023',
       repository: 'https://example.com/repo3',
     },
-    // adding more projects soon
+    // More projects coming soon
   ];
 
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
@@ -62,36 +89,93 @@ export default function ProjectDetail() {
     }
   };
 
+  // swipeable tech scroller for desktop (mouse drag) and native swipe on touch
+  function TechScroller({ items }: { items: string[] }) {
+    const ref = useRef<HTMLDivElement | null>(null);
+    const isDown = useRef(false);
+    const startX = useRef(0);
+    const scrollLeft = useRef(0);
+
+    const onMouseDown = (e: React.MouseEvent) => {
+      if (!ref.current) return;
+      isDown.current = true;
+      ref.current.classList.add('cursor-grabbing');
+      startX.current = e.pageX - ref.current.offsetLeft;
+      scrollLeft.current = ref.current.scrollLeft;
+      document.body.style.userSelect = 'none';
+    };
+
+    const onMouseMove = (e: React.MouseEvent) => {
+      if (!isDown.current || !ref.current) return;
+      e.preventDefault();
+      const x = e.pageX - ref.current.offsetLeft;
+      const walk = x - startX.current;
+      ref.current.scrollLeft = scrollLeft.current - walk;
+    };
+
+    const stopDrag = () => {
+      isDown.current = false;
+      if (ref.current) {
+        ref.current.classList.remove('cursor-grabbing');
+      }
+      document.body.style.userSelect = '';
+    };
+
+    return (
+      <div className="relative">
+        <div
+          ref={ref}
+          className="flex gap-6 pb-2 hide-scrollbar"
+          onMouseDown={onMouseDown}
+          onMouseMove={onMouseMove}
+          onMouseUp={stopDrag}
+          onMouseLeave={stopDrag}
+          style={{
+            overflowX: 'auto',
+            WebkitOverflowScrolling: 'touch',
+            paddingBottom: 8,
+            cursor: 'grab',
+          }}
+          aria-label="Project technologies"
+        >
+          {items.map((label, i) => (
+            <div
+              key={label + i}
+              className="w-20 flex-shrink-0 h-20 rounded-md bg-white/90 dark:bg-gray-800 flex items-center justify-center shadow-md"
+              title={label}
+            >
+              <div className="text-black dark:text-white">
+                {techs.find(t => t.label.toLowerCase() === String(label).toLowerCase())?.icon ?? <span className="text-xs">{label}</span>}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   const RenderFullProject = ({ proj }: { proj: typeof Projects[number] }) => (
     <div>
       <h2 className="text-4xl font-black">{proj.title}</h2>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start pt-5 pb-20" key={proj.id}>
         <div className="lg:col-span-2">
-          <div className="rounded-2xl overflow-hidden border-4 border-white/10 bg-white/5">
-            <div className="bg-[repeating-linear-gradient(45deg,#eee,#eee_20px,#fff_20px,#fff_40px)] h-96 md:h-[520px] w-full" />
-          </div>
+            <div className="rounded-2xl overflow-hidden border-4 border-white/10 bg-white/5">
+            {proj.image ? (
+              <img
+              src={proj.image}
+              alt={proj.title}
+              className="object-cover w-full h-96 md:h-[520px]"
+              />
+            ) : (
+              <div className="bg-[repeating-linear-gradient(45deg,#eee,#eee_20px,#fff_20px,#fff_40px)] h-96 md:h-[520px] w-full" />
+            )}
+            </div>
 
           <div className="mt-5">
             <h4 className="text-lg font-semibold mb-4">Tech Used</h4>
             <div className="w-full">
-              <div className="flex items-center justify-between gap-6">
-                {(proj.tech.slice(0, 4) || techs.map(t => t.label)).map((label, i) => (
-                  <div
-                    key={label + i}
-                    className="w-20 h-20 rounded-md bg-white/90 dark:bg-gray-800 flex items-center justify-center shadow-md"
-                    title={label}
-                  >
-                    <div className="text-black dark:text-white">
-                      {techs.find(t => t.label.toLowerCase() === String(label).toLowerCase())?.icon ?? <span className="text-xs">{label}</span>}
-                    </div>
-                  </div>
-                ))}
-                {proj.tech.length > 4 && (
-                  <div className="w-20 h-20 rounded-md bg-white/90 dark:bg-gray-800 flex items-center justify-center shadow-md">
-                    <span className="text-sm text-gray-700 dark:text-gray-200">+{proj.tech.length - 4}</span>
-                  </div>
-                )}
-              </div>
+              {/* use TechScroller which enables mouse-drag swiping on desktop */}
+              <TechScroller items={proj.tech || []} />
             </div>
           </div>
         </div>
@@ -100,7 +184,7 @@ export default function ProjectDetail() {
           <div className="sticky top-28">
             <div className="p-6 rounded-lg border border-white/10 bg-white/5">
               <h4 className="text-xl font-bold mb-3">Summary</h4>
-              <p className="text-sm text-gray-300 leading-relaxed mb-4">{proj.summary}</p>
+              <div className="text-sm text-gray-300 leading-relaxed mb-4">{proj.summary}</div>
 
               <div className="space-y-3">
                 <div>

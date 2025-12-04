@@ -7,6 +7,7 @@ export default function Hero() {
         <span className="inline-flex items-center justify-center gap-3">
           <span className='text text-white uppercase text-[45px] font-thin'>LETS GET <span className='font-black'>STRAIGHT TO THE POINT</span>. I KNOW WHAT YOU’RE <span className='font-black'>LOOKING</span> FOR.</span>
         </span>
+        <br />
         <span className='text text-white uppercase text-7xl font-thin'>MY <span className='font-black underline'>PROJECTS</span> AND <span className='font-black underline'>EXPERIENCES</span></span>
       </h1>
     </section>
