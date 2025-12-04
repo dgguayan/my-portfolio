@@ -3,6 +3,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { SiReact, SiLaravel, SiPhp, SiMysql, SiFigma, SiUnity } from 'react-icons/si';
 import { PiFileCSharpFill } from 'react-icons/pi';
+import { Warning } from '@phosphor-icons/react';
 
 export default function ProjectDetail() {
   const techs = [
@@ -41,6 +42,8 @@ export default function ProjectDetail() {
       role: 'Frontend & Backend Developer',
       duration: 'Jan 2024 — Apr 2024',
       repository: 'https://example.com/repo',
+      privateRepo: true, // new: repo is private / NDA
+      figmaUrl: 'https://www.figma.com/proto/JG66i1Pup97069upq1SLB9/M.Montesclaros-ID-Admin?node-id=4-2&p=f&t=9GljmayyeQyUO7rT-1&scaling=contain&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=4%3A2',
     },
     {
       id: 2,
@@ -66,6 +69,8 @@ export default function ProjectDetail() {
       role: 'Full-stack Developer',
       duration: 'May 2024 — Jul 2024',
       repository: 'https://example.com/repo2',
+      privateRepo: true,
+      figmaUrl: 'https://www.figma.com/file/your-dpadfinder-mockup',
     },
     {
       id: 3,
@@ -90,6 +95,8 @@ export default function ProjectDetail() {
       role: 'Full-Stack Developer',
       duration: 'Aug 2023 — Dec 2023',
       repository: 'https://example.com/repo3',
+      privateRepo: true,
+      figmaUrl: 'https://www.figma.com/file/your-mkwd-mockup',
     },
     {
       id: 4,
@@ -113,6 +120,8 @@ export default function ProjectDetail() {
       role: 'Front-End and Back-End Developer',
       duration: 'Jan 2024 — Apr 2024',
       repository: 'https://example.com/repo4',
+      privateRepo: true,
+      figmaUrl: 'https://www.figma.com/file/your-cmuwais-mockup',
     }
     // More projects coming soon
   ];
@@ -277,7 +286,13 @@ export default function ProjectDetail() {
                 </div>
 
                 <div className="mt-3 flex gap-2">
-                  <a href={proj.repository} target="_blank" rel="noopener noreferrer" className="inline-block px-4 py-2 bg-black text-white rounded hover:opacity-90">View Repository</a>
+                  {/* replaced anchor with button that shows modal when private */}
+                  <button
+                    onClick={() => handleViewRepository(proj)}
+                    className="inline-block px-4 py-2 bg-black text-white rounded hover:opacity-90"
+                  >
+                    View Repository
+                  </button>
                   <button onClick={() => openProject(proj.id)} className="px-4 py-2 border border-white/10 rounded">Open</button>
                 </div>
               </div>
@@ -290,31 +305,103 @@ export default function ProjectDetail() {
 
   const remaining = Math.max(0, otherProjects.length - visibleExtra);
 
+  // add modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalProject, setModalProject] = useState<typeof Projects[number] | null>(null);
+
+  // handler for repository button
+  const handleViewRepository = (proj: typeof Projects[number]) => {
+    if (!proj) return;
+    if (proj.privateRepo) {
+      // show modal explaining repo is private / NDA
+      setModalProject(proj);
+      setModalOpen(true);
+    } else {
+      // open repository directly
+      if (typeof window !== 'undefined') {
+        window.open(proj.repository, '_blank', 'noopener,noreferrer');
+      }
+    }
+  };
+
+  const proceedToFigma = () => {
+    if (!modalProject) return;
+    if (modalProject.figmaUrl && typeof window !== 'undefined') {
+      window.open(modalProject.figmaUrl, '_blank', 'noopener,noreferrer');
+    }
+    setModalOpen(false);
+    setModalProject(null);
+  };
+
   return (
     <section id="project-detail" className="py-12">
       <div className="container mx-auto px-6">
-        <h2 className="text-4xl md:text-6xl font-black mb-8 text-center tracking-tight uppercase">Project Details</h2>
+      <h2 className="text-4xl md:text-6xl font-black mb-8 text-center tracking-tight uppercase">Project Details</h2>
 
-        {/* main project */}
+      {/* main project */}
+      <div>
         <RenderFullProject proj={selectedProject} />
+      </div>
 
-        {/* additional full-size project detail sections */}
-        {otherProjects.slice(0, visibleExtra).map((p) => (
-          <RenderFullProject proj={p} key={p.id} />
-        ))}
+      {/* additional full-size project detail sections */}
+      {otherProjects.slice(0, visibleExtra).map((p) => (
+        <div key={p.id}>
+        <RenderFullProject proj={p} />
+        </div>
+      ))}
 
-        {remaining > 0 && (
-          <div className="mt-6 text-center">
-            <button
-            
-              onClick={showMore}
-              className="px-6 py-2 bg-white text-black rounded-full font-semibold hover:opacity-90 transition"
+      {remaining > 0 && (
+        <div className="mt-6 text-center">
+        <button
+          onClick={showMore}
+          className="px-6 py-2 bg-white text-black rounded-full font-semibold hover:opacity-90 transition"
+        >
+          Load more ({Math.min(2, remaining)} more)
+        </button>
+        </div>
+      )}
+      </div>
+
+      {/* Modal: repo private / NDA notice */}
+      {modalOpen && modalProject && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/60" onClick={() => { setModalOpen(false); setModalProject(null); }} />
+        <div className="relative max-w-lg w-full mx-4 bg-white/30 dark:bg-gray-900/40 backdrop-blur-md rounded-lg overflow-hidden shadow-xl">
+        <div className="p-6">
+          <Warning size={70} className="text-orange-400 text-center mx-auto" />
+          <div className="flex items-center justify-center mb-6 gap-4">
+          <h3 className="text-4xl text-white text-center font-black">Repository Unavailable</h3>
+          </div>
+          <p className="text-sm text-white mb-4">
+          The repository for "<span className="font-semibold">{modalProject.title}</span>" is not publicly available due to company privacy and an  <span className='text-red-700 font-black'>active NDA</span>.
+          You may view the Figma mockup instead.
+          </p>
+
+          <div className="flex gap-3 justify-end">
+          {modalProject.figmaUrl ? (
+            <a
+            href={modalProject.figmaUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2 bg-black text-white-700 rounded hover:opacity-90"
+            onClick={() => { setModalOpen(false); setModalProject(null); }}
             >
-              Load more ({Math.min(2, remaining)} more)
+            Proceed to Figma Mock Up
+            </a>
+          ) : (
+            <button disabled className="px-4 py-2 bg-gray-300 text-gray-700 rounded cursor-not-allowed">No Mockup Available</button>
+          )}
+            <button
+            onClick={() => { setModalOpen(false); setModalProject(null); }}
+            className="px-4 py-2 border border-red-700 text-red-700 rounded hover:bg-red-800 hover:text-white transition"
+            >
+            Close
             </button>
           </div>
-        )}
+        </div>
+        </div>
       </div>
+      )}
     </section>
   );
 }
