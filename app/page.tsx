@@ -5,7 +5,6 @@ import ProjectDetail from './components/ProjectDetail';
 import Experience from './components/Experience';
 import Contact from './components/Contact';
 import TechStack from './components/TechStack';
-import SpaceInvaders from './components/SpaceInvaders';
 import Cursor from './components/Cursor';
 import BackToTop from './components/BackToTop';
 
