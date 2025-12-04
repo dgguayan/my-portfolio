@@ -39,3 +39,12 @@ body {
 html {
   scroll-behavior: smooth;
 }
+
+/* helper to hide native scrollbars while keeping scroll functionality */
+.hide-scrollbar {
+	-ms-overflow-style: none;  /* IE and Edge */
+	scrollbar-width: none;     /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+	display: none;             /* WebKit */
+}

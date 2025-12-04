@@ -1,5 +1,6 @@
 'use client';
 import { useMemo, useState, useEffect } from 'react';
+import Link from 'next/link'; // added
 import Filter from './Filter';
 
 export default function ProjectsGrid() {
@@ -104,10 +105,12 @@ export default function ProjectsGrid() {
 							<div key={idx} className="w-full px-1" style={{ width: `${100 / pageCount}%` }}>
 								<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 									{page.map((project) => (
-										<div
-											data-cursor-lock
+										<Link
 											key={project.id}
-											className="relative bg-white rounded-2xl border-4 border-white overflow-hidden shadow-lg"
+											/* use "p<id>" so ProjectDetail can match project ids like "p1","p2" */
+											href={`/?project=p${project.id}#project-detail`}
+											className="relative bg-white rounded-2xl border-4 border-white overflow-hidden shadow-lg block"
+											data-cursor-lock
 										>
 											{/* image / visual area */}
 											<div className="bg-gray-100 h-56 md:h-64 lg:h-72 overflow-hidden">
@@ -135,7 +138,7 @@ export default function ProjectsGrid() {
 
 												<p className="text-sm text-white/90 truncate">{project.tech}</p>
 											</div>
-										</div>
+										</Link>
 									))}
 								</div>
 							</div>
