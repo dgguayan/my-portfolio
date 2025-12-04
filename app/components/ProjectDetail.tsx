@@ -44,6 +44,7 @@ export default function ProjectDetail() {
       repository: 'https://example.com/repo',
       privateRepo: true, // new: repo is private / NDA
       figmaUrl: 'https://www.figma.com/proto/JG66i1Pup97069upq1SLB9/M.Montesclaros-ID-Admin?node-id=4-2&p=f&t=9GljmayyeQyUO7rT-1&scaling=contain&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=4%3A2',
+      openProject: 'https://www.figma.com/proto/JG66i1Pup97069upq1SLB9/M.Montesclaros-ID-Admin?node-id=4-2&p=f&t=9GljmayyeQyUO7rT-1&scaling=contain&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=4%3A2',
     },
     {
       id: 2,
@@ -70,7 +71,8 @@ export default function ProjectDetail() {
       duration: 'May 2024 — Jul 2024',
       repository: 'https://example.com/repo2',
       privateRepo: true,
-      figmaUrl: 'https://www.figma.com/file/your-dpadfinder-mockup',
+      figmaUrl: 'https://www.figma.com/proto/lfxedV9loDhxCiEs6llFTb/DPadFinder?node-id=108-2718&p=f&t=sd18qqq4u3vls82R-1&scaling=scale-down&content-scaling=fixed&page-id=108%3A2665&starting-point-node-id=108%3A2718',
+      openProject: 'https://www.figma.com/proto/lfxedV9loDhxCiEs6llFTb/DPadFinder?node-id=108-2718&p=f&t=sd18qqq4u3vls82R-1&scaling=scale-down&content-scaling=fixed&page-id=108%3A2665&starting-point-node-id=108%3A2718',
     },
     {
       id: 3,
@@ -97,6 +99,7 @@ export default function ProjectDetail() {
       repository: 'https://example.com/repo3',
       privateRepo: true,
       figmaUrl: 'https://www.figma.com/file/your-mkwd-mockup',
+      openProject: 'https://www.figma.com/file/your-mkwd-mockup',
     },
     {
       id: 4,
@@ -122,6 +125,7 @@ export default function ProjectDetail() {
       repository: 'https://example.com/repo4',
       privateRepo: true,
       figmaUrl: 'https://www.figma.com/file/your-cmuwais-mockup',
+      openProject: 'https://www.figma.com/file/your-cmuwais-mockup',
     }
     // More projects coming soon
   ];
@@ -293,7 +297,20 @@ export default function ProjectDetail() {
                   >
                     View Repository
                   </button>
-                  <button onClick={() => openProject(proj.id)} className="px-4 py-2 border border-white/10 rounded">Open</button>
+                  <button
+                    onClick={() => {
+                      // if openProject is a URL, open it in a new tab
+                      if (proj.openProject && typeof proj.openProject === 'string' && /^https?:\/\//.test(proj.openProject)) {
+                        if (typeof window !== 'undefined') window.open(proj.openProject, '_blank', 'noopener,noreferrer');
+                      } else {
+                        // otherwise treat it as an id and call the existing openProject handler
+                        openProject(proj.id ?? proj.openProject);
+                      }
+                    }}
+                    className="px-4 py-2 border border-white/10 rounded"
+                  >
+                    Open
+                  </button>
                 </div>
               </div>
             </div>
