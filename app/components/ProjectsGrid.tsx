@@ -9,24 +9,28 @@ export default function ProjectsGrid() {
 			title: "M.Montesclaros Holdings ID Management System",
 			description: "Description",
 			tech: "Figma, Laravel, PHP, React, MySQL",
+			image: '/images/projects/mmid_admin.png',
 		},
 		{
 			id: 2,
 			title: "(Prototype) D'PadFinder | Pad and Boarding Houses Finder for Students.",
 			description: "Description",
 			tech: "Figma",
+			image: '/images/projects/dpadfinder.png',
 		},
 		{
 			id: 3,
 			title: "MKWD | Metro Kidapawan Water District Online Management and Billing System",
 			description: "Description",
 			tech: "Figma, Laravel, React, PHP, MySQL",
+			image: '/images/projects/mkwd_admin.png',
 		},
 		{
 			id: 4,
 			title: "CMU-WAIS | Central Mindanao University Wayfinding Interactive System",
 			description: "Description",
 			tech: "Figma, C#, Unity, MagicaVoxel",
+			image: '/images/projects/cmuwais.PNG',
 		},
 		{
 			id: 5,
@@ -106,8 +110,17 @@ export default function ProjectsGrid() {
 											className="relative bg-white rounded-2xl border-4 border-white overflow-hidden shadow-lg"
 										>
 											{/* image / visual area */}
-											<div className="bg-gray-100 h-56 md:h-64 lg:h-72 flex items-center justify-center">
-												<div className="w-full h-full bg-[repeating-linear-gradient(45deg,#eee,#eee_20px,#fff_20px,#fff_40px)]" />
+											<div className="bg-gray-100 h-56 md:h-64 lg:h-72 overflow-hidden">
+												{project.image ? (
+													<img
+														src={project.image}
+														alt={project.title}
+														className="w-full h-full object-cover"
+														loading="lazy"
+													/>
+												) : (
+													<div className="w-full h-full bg-[repeating-linear-gradient(45deg,#eee,#eee_20px,#fff_20px,#fff_40px)]" />
+												)}
 											</div>
 
 											{/* bottom panel with title, divider and tech list */}
