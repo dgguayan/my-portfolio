@@ -11,10 +11,10 @@ export default function Contact() {
           <a data-cursor-lock href="https://github.com/dgguayan" target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 transition-colors">
             <FaGithub />
           </a>
-          <a data-cursor-lock href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition-colors">
+          <a data-cursor-lock href="https://www.linkedin.com/in/dg-brian-guayan/" target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 transition-colors">
             <FaLinkedin />
           </a>
-          <a data-cursor-lock href="mailto:your.email@example.com" className="hover:text-red-600 transition-colors">
+          <a data-cursor-lock href="mailto:b.dgbrianguayan@gmail.com" className="hover:text-gray-600 transition-colors">
             <FaEnvelope />
           </a>
         </div>
