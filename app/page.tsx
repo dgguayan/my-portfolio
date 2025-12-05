@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import Header from './components/Header';
 import Hero from './components/Hero';
 import ProjectsGrid from './components/ProjectsGrid';
@@ -198,7 +198,9 @@ export default function Home() {
       </div>
 
       <div data-animate data-delay="200">
-        <ProjectDetail />
+        <Suspense fallback={<div style={{ minHeight: '400px' }} />}>
+          <ProjectDetail />
+        </Suspense>
       </div>
 
       <div data-animate data-delay="240">
