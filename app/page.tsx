@@ -101,6 +101,46 @@ const DynamicStars = dynamic(() => Promise.resolve(StarsBackground), {
 });
 
 export default function Home() {
+  useEffect(() => {
+    // Mark that JS has loaded
+    document.documentElement.classList.add('js-loaded');
+    
+    // Animation observer logic
+    const nodes = Array.from(document.querySelectorAll('[data-animate]'));
+    if (!nodes.length) return;
+
+    const timers = new WeakMap();
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const el = entry.target;
+        const raw = el.getAttribute('data-delay');
+        const delay = raw ? parseInt(raw, 10) : 0;
+
+        if (entry.isIntersecting) {
+          const prev = timers.get(el);
+          if (prev) { clearTimeout(prev); timers.delete(el); }
+
+          const id = window.setTimeout(() => {
+            el.classList.add('animate-in');
+            timers.delete(el);
+          }, Math.max(0, delay));
+          timers.set(el, id);
+        } else {
+          const prev = timers.get(el);
+          if (prev) { clearTimeout(prev); timers.delete(el); }
+          el.classList.remove('animate-in');
+        }
+      });
+    }, { threshold: 0.12 });
+
+    nodes.forEach(n => observer.observe(n));
+
+    return () => {
+      nodes.forEach(n => observer.unobserve(n));
+    };
+  }, []);
+
   const starCss = `
     :root { --star-bg-gradient: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); }
 
@@ -185,8 +225,16 @@ export default function Home() {
 
         {/* animation styles for scroll-in (added left/right slide rules + fade) */}
         <style dangerouslySetInnerHTML={{ __html: `
-          /* initial hidden state for animated elements: invisible, slightly offset and softly blurred */
-          [data-animate] { 
+          /* Ensure elements are visible by default, then add animation */
+          [data-animate] {
+            /* Start visible on production to prevent invisibility issues */
+            opacity: 1;
+            transform: translateX(0) translateY(0) scale(1) translateZ(0);
+            filter: blur(0);
+          }
+          
+          /* Only apply animation if JS has loaded */
+          .js-loaded [data-animate] { 
             opacity: 0;
             transform: translateY(18px) scale(0.995) translateZ(0);
             filter: blur(4px);
@@ -197,10 +245,10 @@ export default function Home() {
               filter 700ms cubic-bezier(.16,.84,.24,1);
           }
 
-          [data-animate][data-animate-side="left"] {
+          .js-loaded [data-animate][data-animate-side="left"] {
             transform: translateX(-28px) translateY(8px) scale(0.995) translateZ(0);
           }
-          [data-animate][data-animate-side="right"] {
+          .js-loaded [data-animate][data-animate-side="right"] {
             transform: translateX(28px) translateY(8px) scale(0.995) translateZ(0);
           }
 
@@ -214,48 +262,6 @@ export default function Home() {
             [data-animate], .animate-in { transition: none !important; transform: none !important; opacity: 1 !important; filter: none !important; }
           }
         ` }} />
-
-        {/* tiny inline script: observe [data-animate] and toggle .animate-in when in view (repeatable) */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){
-              if (typeof window === 'undefined') return;
-              try {
-                const nodes = Array.from(document.querySelectorAll('[data-animate]'));
-                if (!nodes.length) return;
-
-                const timers = new WeakMap();
-
-                const observer = new IntersectionObserver((entries) => {
-                  entries.forEach(entry => {
-                    const el = entry.target;
-                    const raw = el.getAttribute('data-delay');
-                    const delay = raw ? parseInt(raw, 10) : 0;
-
-                    if (entry.isIntersecting) {
-                      const prev = timers.get(el);
-                      if (prev) { clearTimeout(prev); timers.delete(el); }
-
-                      const id = window.setTimeout(() => {
-                        el.classList.add('animate-in');
-                        timers.delete(el);
-                      }, Math.max(0, delay));
-                      timers.set(el, id);
-                    } else {
-                      const prev = timers.get(el);
-                      if (prev) { clearTimeout(prev); timers.delete(el); }
-                      el.classList.remove('animate-in');
-                    }
-                  });
-                }, { threshold: 0.12 });
-
-                nodes.forEach(n => observer.observe(n));
-              } catch (e) {
-                console.warn('animation observer error', e);
-              }
-            })();`,
-          }}
-        />
       </Suspense>
     </main>
   );
