@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, Suspense } from "react";
 import Header from './components/Header';
 import Hero from './components/Hero';
 import ProjectsGrid from './components/ProjectsGrid';
@@ -83,10 +83,11 @@ export default function Home() {
 
   return (
     <main>
-      <Cursor />
-      
-      {/* injected binary-star background (behind everything) - only render on client */}
-      {isClient && (
+      <Suspense fallback={<div className="stars-bg" aria-hidden="true" />}>
+        <Cursor />
+        
+        {/* injected binary-star background (behind everything) - only render on client */}
+        {isClient && (
         <div className="stars-bg" aria-hidden="true">
           <div className="stars-layer" id="stars">
             <div className="layer-inner small">
@@ -255,6 +256,7 @@ export default function Home() {
           })();`,
         }}
       />
+      </Suspense>
     </main>
   );
 }
