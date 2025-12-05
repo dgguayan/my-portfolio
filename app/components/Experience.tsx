@@ -23,7 +23,7 @@ const EXPERIENCES: Exp[] = [
     company: 'M.Montesclaros Holdings Inc.',
     duration: 'Feb 2025 — May 2025',
     location: 'Philippines · On-Site',
-    tech: ['Figma', 'Laravel', 'PHP', 'MySQL'],
+    tech: ['Figma', 'Laravel', 'React', 'PHP', 'MySQL'],
   },
   {
     id: 'e2',
@@ -33,7 +33,7 @@ const EXPERIENCES: Exp[] = [
     company: "OBX Solutions Technology Inc.",
     duration: 'June 2025 — Present',
     location: 'Philippines · On-Site',
-    tech: ['Figma', 'Laravel', 'PHP', 'MySQL'],
+    tech: ['Figma', 'Laravel', 'React', 'PHP', 'MySQL'],
   },
   // adding more experience soon...
 ];

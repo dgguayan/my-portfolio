@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Header from './components/Header';
 import Hero from './components/Hero';
 import ProjectsGrid from './components/ProjectsGrid';
@@ -12,17 +12,32 @@ import Cursor from './components/Cursor';
 import BackToTop from './components/BackToTop';
 
 export default function Home() {
-  // generate binary-star layers server-side
-  const genBinary = (n: number) =>
-    Array.from({ length: n }).map(() => ({
-      left: Math.random() * 100,   // percent
-      top: Math.random() * 120,    // allow some beyond viewport for smoother entrance
-      char: Math.random() < 0.5 ? "0" : "1",
-    }));
+  const [isClient, setIsClient] = useState(false);
 
-  const smallStars = genBinary(700);
-  const mediumStars = genBinary(200);
-  const bigStars = genBinary(100);
+  // Use useMemo with a stable seed to generate consistent stars
+  const stars = useMemo(() => {
+    const genBinary = (n: number, seed: number) =>
+      Array.from({ length: n }).map((_, i) => {
+        // Simple seeded random using index
+        const x = Math.sin(seed + i) * 10000;
+        const left = (x - Math.floor(x)) * 100;
+        const y = Math.sin(seed + i + 1) * 10000;
+        const top = (y - Math.floor(y)) * 120;
+        const z = Math.sin(seed + i + 2) * 10000;
+        const char = (z - Math.floor(z)) < 0.5 ? "0" : "1";
+        return { left, top, char };
+      });
+
+    return {
+      small: genBinary(700, 1),
+      medium: genBinary(200, 2),
+      big: genBinary(100, 3)
+    };
+  }, []);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const starCss = `
     :root { --star-bg-gradient: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); }
@@ -40,11 +55,9 @@ export default function Home() {
 
     .stars-layer { position: absolute; inset: 0; overflow: hidden; }
 
-    /* inner wrapper holds two copies stacked vertically; animate the wrapper for continuous scroll */
     .layer-inner { position: absolute; inset: 0; }
     .layer-copy { position: absolute; inset: 0; }
 
-    /* binary characters (small/medium/large) — kept small so not obtrusive */
     .binary {
       position: absolute;
       color: rgba(255,255,255,0.9);
@@ -59,12 +72,10 @@ export default function Home() {
     .binary.medium { font-size: var(--binary-size-medium, 12px); opacity: 0.7; }
     .binary.big { font-size: var(--binary-size-big, 14px); opacity: 0.95; }
 
-    /* animate the inner wrapper (two stacked copies) to create a seamless vertical loop */
     @keyframes moveSmall { from { transform: translateY(0%); } to { transform: translateY(-100%); } }
     @keyframes moveMedium { from { transform: translateY(0%); } to { transform: translateY(-100%); } }
     @keyframes moveBig { from { transform: translateY(0%); } to { transform: translateY(-100%); } }
 
-    /* durations match previous feel */
     .layer-inner.small { animation: moveSmall 50s linear infinite; }
     .layer-inner.medium { animation: moveMedium 100s linear infinite; }
     .layer-inner.big { animation: moveBig 150s linear infinite; }
@@ -72,21 +83,22 @@ export default function Home() {
 
   return (
     <main>
-      <React.Suspense fallback={null}>
-        <Cursor />
-        {/* injected binary-star background (behind everything) */}
+      <Cursor />
+      
+      {/* injected binary-star background (behind everything) - only render on client */}
+      {isClient && (
         <div className="stars-bg" aria-hidden="true">
           <div className="stars-layer" id="stars">
             <div className="layer-inner small">
               <div className="layer-copy">
-                {smallStars.map((s, i) => (
+                {stars.small.map((s, i) => (
                   <span key={`s-a-${i}`} className="binary small" style={{ left: `${s.left}%`, top: `${s.top}%` }}>
                     {s.char}
                   </span>
                 ))}
               </div>
               <div className="layer-copy" aria-hidden="true" style={{ transform: 'translateY(100%)' }}>
-                {smallStars.map((s, i) => (
+                {stars.small.map((s, i) => (
                   <span key={`s-b-${i}`} className="binary small" style={{ left: `${s.left}%`, top: `${s.top}%` }}>
                     {s.char}
                   </span>
@@ -98,14 +110,14 @@ export default function Home() {
           <div className="stars-layer" id="stars2">
             <div className="layer-inner medium">
               <div className="layer-copy">
-                {mediumStars.map((s, i) => (
+                {stars.medium.map((s, i) => (
                   <span key={`m-a-${i}`} className="binary medium" style={{ left: `${s.left}%`, top: `${s.top}%` }}>
                     {s.char}
                   </span>
                 ))}
               </div>
               <div className="layer-copy" aria-hidden="true" style={{ transform: 'translateY(100%)' }}>
-                {mediumStars.map((s, i) => (
+                {stars.medium.map((s, i) => (
                   <span key={`m-b-${i}`} className="binary medium" style={{ left: `${s.left}%`, top: `${s.top}%` }}>
                     {s.char}
                   </span>
@@ -117,14 +129,14 @@ export default function Home() {
           <div className="stars-layer" id="stars3">
             <div className="layer-inner big">
               <div className="layer-copy">
-                {bigStars.map((s, i) => (
+                {stars.big.map((s, i) => (
                   <span key={`b-a-${i}`} className="binary big" style={{ left: `${s.left}%`, top: `${s.top}%` }}>
                     {s.char}
                   </span>
                 ))}
               </div>
               <div className="layer-copy" aria-hidden="true" style={{ transform: 'translateY(100%)' }}>
-                {bigStars.map((s, i) => (
+                {stars.big.map((s, i) => (
                   <span key={`b-b-${i}`} className="binary big" style={{ left: `${s.left}%`, top: `${s.top}%` }}>
                     {s.char}
                   </span>
@@ -133,123 +145,116 @@ export default function Home() {
             </div>
           </div>
         </div>
+      )}
 
-        {/* inject generated CSS */}
-        <style dangerouslySetInnerHTML={{ __html: starCss }} />
+      {/* Always render the background div to avoid layout shift */}
+      {!isClient && <div className="stars-bg" aria-hidden="true" />}
 
-        <Header />
+      {/* inject generated CSS */}
+      <style dangerouslySetInnerHTML={{ __html: starCss }} />
 
-        {/* wrap major sections so they animate on scroll */}
-        <div data-animate data-delay="100" suppressHydrationWarning>
-          <Hero />
-        </div>
+      <Header />
 
-        <div data-animate data-delay="120" suppressHydrationWarning>
-          <ProjectsGrid />
-        </div>
+      {/* wrap major sections so they animate on scroll */}
+      <div data-animate data-delay="100" suppressHydrationWarning>
+        <Hero />
+      </div>
 
-        <div data-animate data-delay="160" suppressHydrationWarning>
-          <TechStack />
-        </div>
+      <div data-animate data-delay="120" suppressHydrationWarning>
+        <ProjectsGrid />
+      </div>
 
-        <div data-animate data-delay="200" suppressHydrationWarning>
-          <ProjectDetail />
-        </div>
+      <div data-animate data-delay="160" suppressHydrationWarning>
+        <TechStack />
+      </div>
 
-        <div data-animate data-delay="240" suppressHydrationWarning>
-          <Experience />
-        </div>
+      <div data-animate data-delay="200" suppressHydrationWarning>
+        <ProjectDetail />
+      </div>
 
-        <div data-animate data-delay="280" suppressHydrationWarning>
-          <Contact />
-        </div>
+      <div data-animate data-delay="240" suppressHydrationWarning>
+        <Experience />
+      </div>
 
-        <BackToTop />
+      <div data-animate data-delay="280" suppressHydrationWarning>
+        <Contact />
+      </div>
 
-        {/* animation styles for scroll-in (added left/right slide rules + fade) */}
-        <style dangerouslySetInnerHTML={{ __html: `
-          /* initial hidden state for animated elements: invisible, slightly offset and softly blurred */
-          [data-animate] { 
-            opacity: 0;
-            transform: translateY(18px) scale(0.995) translateZ(0); /* translateZ helps GPU compositing */
-            filter: blur(4px);
-            will-change: transform, opacity, filter;
-            /* transition on the base element so both enter and leave are smooth */
-            transition:
-              opacity 700ms cubic-bezier(.16,.84,.24,1),
-              transform 700ms cubic-bezier(.16,.84,.24,1),
-              filter 700ms cubic-bezier(.16,.84,.24,1);
-          }
+      <BackToTop />
 
-          /* slide from left/right initial transforms */
-          [data-animate][data-animate-side="left"] {
-            transform: translateX(-28px) translateY(8px) scale(0.995) translateZ(0);
-          }
-          [data-animate][data-animate-side="right"] {
-            transform: translateX(28px) translateY(8px) scale(0.995) translateZ(0);
-          }
+      {/* animation styles for scroll-in (added left/right slide rules + fade) */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        /* initial hidden state for animated elements: invisible, slightly offset and softly blurred */
+        [data-animate] { 
+          opacity: 0;
+          transform: translateY(18px) scale(0.995) translateZ(0);
+          filter: blur(4px);
+          will-change: transform, opacity, filter;
+          transition:
+            opacity 700ms cubic-bezier(.16,.84,.24,1),
+            transform 700ms cubic-bezier(.16,.84,.24,1),
+            filter 700ms cubic-bezier(.16,.84,.24,1);
+        }
 
-          /* when observer toggles this class, element will animate in:
-             fade (opacity), un-blur (filter) and slide to neutral (transform) */
-          .animate-in {
-            opacity: 1 !important;
-            transform: translateX(0) translateY(0) scale(1) translateZ(0) !important;
-            filter: blur(0) !important;
-            /* no need to redeclare transition here — base handles both directions */
-          }
+        [data-animate][data-animate-side="left"] {
+          transform: translateX(-28px) translateY(8px) scale(0.995) translateZ(0);
+        }
+        [data-animate][data-animate-side="right"] {
+          transform: translateX(28px) translateY(8px) scale(0.995) translateZ(0);
+        }
 
-          /* reduced motion preference */
-          @media (prefers-reduced-motion: reduce) {
-            [data-animate], .animate-in { transition: none !important; transform: none !important; opacity: 1 !important; filter: none !important; }
-          }
-        ` }} />
+        .animate-in {
+          opacity: 1 !important;
+          transform: translateX(0) translateY(0) scale(1) translateZ(0) !important;
+          filter: blur(0) !important;
+        }
 
-        {/* tiny inline script: observe [data-animate] and toggle .animate-in when in view (repeatable) */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){
-              if (typeof window === 'undefined') return;
-              try {
-                const nodes = Array.from(document.querySelectorAll('[data-animate]'));
-                if (!nodes.length) return;
+        @media (prefers-reduced-motion: reduce) {
+          [data-animate], .animate-in { transition: none !important; transform: none !important; opacity: 1 !important; filter: none !important; }
+        }
+      ` }} />
 
-                // track pending timeouts so we can cancel if element leaves before delay elapses
-                const timers = new WeakMap();
+      {/* tiny inline script: observe [data-animate] and toggle .animate-in when in view (repeatable) */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `(function(){
+            if (typeof window === 'undefined') return;
+            try {
+              const nodes = Array.from(document.querySelectorAll('[data-animate]'));
+              if (!nodes.length) return;
 
-                const observer = new IntersectionObserver((entries) => {
-                  entries.forEach(entry => {
-                    const el = entry.target;
-                    const raw = el.getAttribute('data-delay');
-                    const delay = raw ? parseInt(raw, 10) : 0;
+              const timers = new WeakMap();
 
-                    if (entry.isIntersecting) {
-                      // clear any previously scheduled timer for this element
-                      const prev = timers.get(el);
-                      if (prev) { clearTimeout(prev); timers.delete(el); }
+              const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                  const el = entry.target;
+                  const raw = el.getAttribute('data-delay');
+                  const delay = raw ? parseInt(raw, 10) : 0;
 
-                      // schedule adding the class after optional delay
-                      const id = window.setTimeout(() => {
-                        el.classList.add('animate-in');
-                        timers.delete(el);
-                      }, Math.max(0, delay));
-                      timers.set(el, id);
-                    } else {
-                      // leaving viewport: cancel pending timer and remove class so it can replay on re-entry
-                      const prev = timers.get(el);
-                      if (prev) { clearTimeout(prev); timers.delete(el); }
-                      el.classList.remove('animate-in');
-                    }
-                  });
-                }, { threshold: 0.12 });
+                  if (entry.isIntersecting) {
+                    const prev = timers.get(el);
+                    if (prev) { clearTimeout(prev); timers.delete(el); }
 
-                nodes.forEach(n => observer.observe(n));
-              } catch (e) {
-                console.warn('animation observer error', e);
-              }
-            })();`,
-          }}
-        />
-      </React.Suspense>
+                    const id = window.setTimeout(() => {
+                      el.classList.add('animate-in');
+                      timers.delete(el);
+                    }, Math.max(0, delay));
+                    timers.set(el, id);
+                  } else {
+                    const prev = timers.get(el);
+                    if (prev) { clearTimeout(prev); timers.delete(el); }
+                    el.classList.remove('animate-in');
+                  }
+                });
+              }, { threshold: 0.12 });
+
+              nodes.forEach(n => observer.observe(n));
+            } catch (e) {
+              console.warn('animation observer error', e);
+            }
+          })();`,
+        }}
+      />
     </main>
   );
 }
