@@ -17,6 +17,9 @@ export default function Home() {
   useEffect(() => {
     setMounted(true);
     
+    // Add class to enable animations after mount
+    document.documentElement.classList.add('js-loaded');
+    
     // Animation observer logic
     const nodes = Array.from(document.querySelectorAll('[data-animate]'));
     if (!nodes.length) return;
@@ -214,28 +217,29 @@ export default function Home() {
       <BackToTop />
 
       <style dangerouslySetInnerHTML={{ __html: `
-        /* Ensure elements are visible by default */
+        /* Elements visible by default for safety */
         [data-animate] { 
-          opacity: 1 !important;
-          transform: translateY(0) !important;
-          filter: blur(0) !important;
+          opacity: 1;
+          transform: translateY(0);
+          filter: blur(0);
+        }
+        
+        /* Only apply animation styles when JS has loaded */
+        .js-loaded [data-animate] { 
+          opacity: 0;
+          transform: translateY(18px) scale(0.995) translateZ(0);
+          filter: blur(4px);
+          will-change: transform, opacity, filter;
           transition:
             opacity 700ms cubic-bezier(.16,.84,.24,1),
             transform 700ms cubic-bezier(.16,.84,.24,1),
             filter 700ms cubic-bezier(.16,.84,.24,1);
         }
 
-        /* Only hide if mounted and ready to animate */
-        .ready-to-animate [data-animate]:not(.animate-in) { 
-          opacity: 0;
-          transform: translateY(18px) scale(0.995) translateZ(0);
-          filter: blur(4px);
-        }
-
-        .ready-to-animate [data-animate][data-animate-side="left"]:not(.animate-in) {
+        .js-loaded [data-animate][data-animate-side="left"] {
           transform: translateX(-28px) translateY(8px) scale(0.995) translateZ(0);
         }
-        .ready-to-animate [data-animate][data-animate-side="right"]:not(.animate-in) {
+        .js-loaded [data-animate][data-animate-side="right"] {
           transform: translateX(28px) translateY(8px) scale(0.995) translateZ(0);
         }
 
